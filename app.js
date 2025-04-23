@@ -3,7 +3,6 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-const mysql = require('mysql2')
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -38,23 +37,5 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
-
-// database connection
-const connection = mysql.createConnection({
-  host: 'express_mysql',
-  user: 'root',
-  password: 'root',
-  database: 'db_bkeep'
-})
-
-connection.connect()
-
-connection.query('SELECT 1 + 6 AS solution', (err, rows, fields) => {
-  if (err) throw err
-
-  console.log('The solution is geus: ', rows[0].solution)
-})
-//connection.end()
-
 
 module.exports = app;
