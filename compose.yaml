@@ -20,6 +20,7 @@ services:
       - "3000:3000"
     networks:
       - express
+    env_file: ".env"
   phpmyadmin:
     container_name: express_phpmyadmin
     image: phpmyadmin/phpmyadmin
