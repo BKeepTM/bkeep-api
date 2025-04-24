@@ -28,13 +28,13 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `hive` (
-  `id_hive` int NOT NULL,
+  `id` int NOT NULL,
   `name` varchar(45) NOT NULL,
   `location` varchar(45) NOT NULL,
   `type` enum('lr','az','db') NOT NULL,
   `status` enum('offline','online') NOT NULL,
-  `TK_location` int NOT NULL,
-  `TK_notes` int NOT NULL
+  `fk_location` int NOT NULL,
+  `fk_notes` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
@@ -44,11 +44,10 @@ CREATE TABLE `hive` (
 --
 
 CREATE TABLE `hive_weight` (
-  `id_hive_weight` int NOT NULL,
+  `id` int NOT NULL,
   `weight` float NOT NULL,
   `time_weight` datetime NOT NULL,
-  `TK_hive` int NOT NULL,
-  `TK_hive1` int NOT NULL
+  `fk_hive` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
@@ -58,7 +57,7 @@ CREATE TABLE `hive_weight` (
 --
 
 CREATE TABLE `location` (
-  `id_location` int NOT NULL,
+  `id` int NOT NULL,
   `longitude` float NOT NULL,
   `latitude` float NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -70,7 +69,7 @@ CREATE TABLE `location` (
 --
 
 CREATE TABLE `notes` (
-  `id_notes` int NOT NULL,
+  `id` int NOT NULL,
   `content` varchar(500) DEFAULT NULL,
   `time` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -82,12 +81,12 @@ CREATE TABLE `notes` (
 --
 
 CREATE TABLE `user` (
-  `id_user` int NOT NULL,
+  `id` int NOT NULL,
   `username` varchar(45) NOT NULL,
   `password` varchar(45) NOT NULL,
   `mail` varchar(45) DEFAULT NULL,
   `settings` json DEFAULT NULL,
-  `TK_hive` int NOT NULL
+  `fk_hive` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
@@ -98,35 +97,35 @@ CREATE TABLE `user` (
 -- Indeksi tabele `hive`
 --
 ALTER TABLE `hive`
-  ADD PRIMARY KEY (`id_hive`),
-  ADD KEY `TK_hive_location1_idx` (`TK_location`),
-  ADD KEY `TK_hive_notes1_idx` (`TK_notes`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_hive_location1_idx` (`fk_location`),
+  ADD KEY `fk_hive_notes1_idx` (`fk_notes`);
 
 --
 -- Indeksi tabele `hive_weight`
 --
 ALTER TABLE `hive_weight`
-  ADD PRIMARY KEY (`id_hive_weight`),
-  ADD KEY `TK_hive_weight_hive1_idx` (`TK_hive`,`TK_hive1`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_hive_weight_hive1_idx` (`fk_hive`);
 
 --
 -- Indeksi tabele `location`
 --
 ALTER TABLE `location`
-  ADD PRIMARY KEY (`id_location`);
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indeksi tabele `notes`
 --
 ALTER TABLE `notes`
-  ADD PRIMARY KEY (`id_notes`);
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indeksi tabele `user`
 --
 ALTER TABLE `user`
-  ADD PRIMARY KEY (`id_user`),
-  ADD KEY `TK_user_hive1_idx` (`TK_hive`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_user_hive1_idx` (`fk_hive`);
 
 --
 -- Omejitve tabel za povzetek stanja
@@ -136,20 +135,20 @@ ALTER TABLE `user`
 -- Omejitve za tabelo `hive`
 --
 ALTER TABLE `hive`
-  ADD CONSTRAINT `TK_hive_location1` FOREIGN KEY (`TK_location`) REFERENCES `location` (`id_location`),
-  ADD CONSTRAINT `TK_hive_notes1` FOREIGN KEY (`TK_notes`) REFERENCES `notes` (`id_notes`);
+  ADD CONSTRAINT `fk_hive_location1` FOREIGN KEY (`fk_location`) REFERENCES `location` (`id`),
+  ADD CONSTRAINT `fk_hive_notes1` FOREIGN KEY (`fk_notes`) REFERENCES `notes` (`id`);
 
 --
 -- Omejitve za tabelo `hive_weight`
 --
 ALTER TABLE `hive_weight`
-  ADD CONSTRAINT `TK_hive_weight_hive1` FOREIGN KEY (`TK_hive`) REFERENCES `hive` (`id_hive`);
+  ADD CONSTRAINT `fk_hive_weight_hive1` FOREIGN KEY (`fk_hive`) REFERENCES `hive` (`id`);
 
 --
 -- Omejitve za tabelo `user`
 --
 ALTER TABLE `user`
-  ADD CONSTRAINT `TK_user_hive1` FOREIGN KEY (`TK_hive`) REFERENCES `hive` (`id_hive`);
+  ADD CONSTRAINT `fk_user_hive1` FOREIGN KEY (`fk_hive`) REFERENCES `hive` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
