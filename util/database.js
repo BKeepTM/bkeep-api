@@ -1,6 +1,8 @@
 // database connection
-console.log("logging env variables")
-console.log(process.env)
+require('dotenv').config()
+
+mysql = require("mysql2") 
+
 const connection = mysql.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -9,3 +11,4 @@ const connection = mysql.createConnection({
 })
 
 connection.connect()
+module.exports = connection;
