@@ -7,6 +7,7 @@ const mysql = require('mysql2')
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+var hiveRouter = require('./routes/hive');
 
 var app = express();
 
@@ -22,6 +23,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/',hiveRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -38,23 +40,6 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
-
-// database connection
-const connection = mysql.createConnection({
-  host: 'express_mysql',
-  user: 'root',
-  password: 'root',
-  database: 'db_bkeep'
-})
-
-connection.connect()
-
-connection.query('SELECT 1 + 6 AS solution', (err, rows, fields) => {
-  if (err) throw err
-
-  console.log('The solution is geus: ', rows[0].solution)
-})
-//connection.end()
 
 
 module.exports = app;

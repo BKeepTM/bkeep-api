@@ -28,7 +28,7 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `hive` (
-  `id` int NOT NULL,
+  `id` int NOT NULL primary key AUTO_INCREMENT,
   `name` varchar(45) NOT NULL,
   `location` varchar(45) NOT NULL,
   `type` enum('lr','az','db') NOT NULL,
@@ -44,7 +44,7 @@ CREATE TABLE `hive` (
 --
 
 CREATE TABLE `hive_weight` (
-  `id` int NOT NULL,
+  `id` int NOT NULL primary key AUTO_INCREMENT,
   `weight` float NOT NULL,
   `time_weight` datetime NOT NULL,
   `fk_hive` int NOT NULL
@@ -57,7 +57,7 @@ CREATE TABLE `hive_weight` (
 --
 
 CREATE TABLE `location` (
-  `id` int NOT NULL,
+  `id` int NOT NULL primary key AUTO_INCREMENT,
   `longitude` float NOT NULL,
   `latitude` float NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -69,7 +69,7 @@ CREATE TABLE `location` (
 --
 
 CREATE TABLE `notes` (
-  `id` int NOT NULL,
+  `id` int NOT NULL primary key AUTO_INCREMENT,
   `content` varchar(500) DEFAULT NULL,
   `time` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -81,7 +81,7 @@ CREATE TABLE `notes` (
 --
 
 CREATE TABLE `user` (
-  `id` int NOT NULL,
+  `id` int NOT NULL primary key AUTO_INCREMENT,
   `username` varchar(45) NOT NULL,
   `password` varchar(45) NOT NULL,
   `mail` varchar(45) DEFAULT NULL,
@@ -97,7 +97,6 @@ CREATE TABLE `user` (
 -- Indeksi tabele `hive`
 --
 ALTER TABLE `hive`
-  ADD PRIMARY KEY (`id`),
   ADD KEY `fk_hive_location1_idx` (`fk_location`),
   ADD KEY `fk_hive_notes1_idx` (`fk_notes`);
 
@@ -105,26 +104,20 @@ ALTER TABLE `hive`
 -- Indeksi tabele `hive_weight`
 --
 ALTER TABLE `hive_weight`
-  ADD PRIMARY KEY (`id`),
   ADD KEY `fk_hive_weight_hive1_idx` (`fk_hive`);
 
 --
 -- Indeksi tabele `location`
 --
-ALTER TABLE `location`
-  ADD PRIMARY KEY (`id`);
 
 --
 -- Indeksi tabele `notes`
 --
-ALTER TABLE `notes`
-  ADD PRIMARY KEY (`id`);
 
 --
 -- Indeksi tabele `user`
 --
 ALTER TABLE `user`
-  ADD PRIMARY KEY (`id`),
   ADD KEY `fk_user_hive1_idx` (`fk_hive`);
 
 --
