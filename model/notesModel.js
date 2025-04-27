@@ -1,41 +1,53 @@
-const db = require("../util/database.js");
+import connection from "../util/database.js";
 
 //tukaj je osnovna struktura tabele Notes, in CRUD metode
 
-module.exports = class Notes {
-    constructor(id_notes, content, time) {
-        this.id_notes = id_notes;
+export default class Notes {
+    constructor(id, content, time) {
+        this.id = id;
         this.content = content;
         this.time = time;
     }
 
-    static getAll() {
-        return db.execute('SELECT * FROM notes');
+    static async getAll() {
+        try {
+            const [results, fields] = await connection.execute('SELECT * FROM notes');
+            return results;
+        } catch (err) {
+            console.error('Error executing query:', err);
+            throw err;
+        }
     }
-
-    static getById(id) {
-        return db.execute('SELECT * FROM notes WHERE id_notes = ?', [id]);
+    
+    static async getById(id) {
+        try {
+            const [results, fields] = await connection.execute('SELECT * FROM notes WHERE id = ?', [id]);
+            return results;
+        } catch (err) {
+            console.error('Error executing query:', err);
+            throw err;
+        }
     }
 
     insert() {
-        return db.execute(
+        return connection.execute(
             'INSERT INTO notes (content, time) VALUES (?, ?)',
             [this.content, this.time]
         );
     }
 
     update() {
-        return db.execute(
-            'UPDATE notes SET content = ?, time = ? WHERE id_notes = ?',
-            [this.content, this.time, this.id_notes]
+        return connection.execute(
+            'UPDATE notes SET content = ?, time = ? WHERE id = ?',
+            [this.content, this.time, this.id]
         );
     }
 
     static deleteById(id) {
-        return db.execute('DELETE FROM notes WHERE id_notes = ?', [id]);
+        return connection.execute('DELETE FROM notes WHERE id = ?', [id]);
     }
 
-    static delete(note) {
-        return db.execute('DELETE FROM notes WHERE id_notes = ?', [note.id_notes]);
+    delete() {
+        return connection.execute('DELETE FROM notes WHERE id = ?', [this.id]);
     }
 };

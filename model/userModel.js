@@ -1,44 +1,56 @@
-const db = require("../util/database.js");
+import connection from "../util/database.js";
 
 //tukaj je osnovna struktura tabele user, in CRUD metode
 
-module.exports = class User {
-    constructor(id_user, username, password, mail, settings, TK_hive) {
-        this.id_user = id_user;
+export default class User {
+    constructor(id, username, password, mail, settings, fk_hive) {
+        this.id = id;
         this.username = username;
         this.password = password;
         this.mail = mail;
         this.settings = settings;
-        this.TK_hive = TK_hive;
+        this.fk_hive = fk_hive;
     }
 
-    static getAll() {
-        return db.execute('SELECT * FROM user');
+    static async getAll() {
+        try {
+            const [results, fields] = await connection.execute('SELECT * FROM user');
+            return results;
+        } catch (err) {
+            console.error('Error executing query:', err);
+            throw err;
+        }
     }
 
-    static getById(id) {
-        return db.execute('SELECT * FROM user WHERE id_user = ?', [id]);
+    static async getById(id) {
+        try {
+            const [results, fields] = await connection.execute('SELECT * FROM user WHERE id = ?', [id]);
+            return results;
+        } catch (err) {
+            console.error('Error executing query:', err);
+            throw err;
+        }
     }
 
     insert() {
-        return db.execute(
-            'INSERT INTO user (username, password, mail, settings, TK_hive) VALUES (?, ?, ?, ?, ?)',
-            [this.username, this.password, this.mail, JSON.stringify(this.settings), this.TK_hive]
+        return connection.execute(
+            'INSERT INTO user (username, password, mail, settings, fk_hive) VALUES (?, ?, ?, ?, ?)',
+            [this.username, this.password, this.mail, JSON.stringify(this.settings), this.fk_hive]
         );
     }
 
     update() {
-        return db.execute(
-            'UPDATE user SET username = ?, password = ?, mail = ?, settings = ?, TK_hive = ? WHERE id_user = ?',
-            [this.username, this.password, this.mail, JSON.stringify(this.settings), this.TK_hive, this.id_user]
+        return connection.execute(
+            'UPDATE user SET username = ?, password = ?, mail = ?, settings = ?, fk_hive = ? WHERE id = ?',
+            [this.username, this.password, this.mail, JSON.stringify(this.settings), this.fk_hive, this.id]
         );
     }
 
     static deleteById(id) {
-        return db.execute('DELETE FROM user WHERE id_user = ?', [id]);
+        return connection.execute('DELETE FROM user WHERE id = ?', [id]);
     }
 
-    static delete(user) {
-        return db.execute('DELETE FROM user WHERE id_user = ?', [user.id_user]);
+    delete() {
+        return connection.execute('DELETE FROM user WHERE id = ?', [this.id]);
     }
 };

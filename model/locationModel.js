@@ -1,41 +1,54 @@
-const db = require("../util/database.js");
+import connection from "../util/database.js";
 
 //tukaj je osnovna struktura tabele Location, in CRUD metode
 
-module.exports = class Location {
-    constructor(id_location, longitude, latitude) {
-        this.id_location = id_location;
+export default class Location {
+    constructor(id, longitude, latitude) {
+        this.id = id;
         this.longitude = longitude;
         this.latitude = latitude;
     }
 
-    static getAll() {
-        return db.execute('SELECT * FROM location');
+    static async getAll() {
+        try {
+            const [results, fields] = await connection.execute('SELECT * FROM location');
+            return results;
+        } catch (err) {
+            console.error('Error executing query:', err);
+            throw err;S
+        }
     }
 
-    static getById(id) {
-        return db.execute('SELECT * FROM location WHERE id_location = ?', [id]);
+    
+    static async getById(id) {
+        try {
+            const [results, fields] = await connection.execute('SELECT * FROM location WHERE id = ?', [id]);
+            return results;
+        } catch (err) {
+            console.error('Error executing query:', err);
+            throw err;
+        }
     }
 
     insert() {
-        return db.execute(
+        return connection.execute(
             'INSERT INTO location (longitude, latitude) VALUES (?, ?)',
             [this.longitude, this.latitude]
         );
     }
 
     update() {
-        return db.execute(
-            'UPDATE location SET longitude = ?, latitude = ? WHERE id_location = ?',
-            [this.longitude, this.latitude, this.id_location]
+        return connection.execute(
+            'UPDATE location SET longitude = ?, latitude = ? WHERE id = ?',
+            [this.longitude, this.latitude, this.id]
         );
     }
 
     static deleteById(id) {
-        return db.execute('DELETE FROM location WHERE id_location = ?', [id]);
+        return connection.execute('DELETE FROM location WHERE id = ?', [id]);
     }
 
-    static delete(location) {
-        return db.execute('DELETE FROM location WHERE id_location = ?', [location.id_location]);
+    delete() {
+        return connection.execute('DELETE FROM location WHERE id = ?', [this.id]);
     }
 };

@@ -1,42 +1,54 @@
-const db = require("../util/database.js");
+import connection from "../util/database.js";
 
 //tukaj je osnovna struktura tabele HiveWeight, in CRUD metode
 
-module.exports = class HiveWeight {
-    constructor(id_hive_weight, weight, time_weight, TK_hive, TK_hive1) {
+export default class HiveWeight {
+    constructor(id_hive_weight, weight, time_weight, fk_hive) {
         this.id_hive_weight = id_hive_weight;
         this.weight = weight;
         this.time_weight = time_weight;
-        this.TK_hive = TK_hive;
+        this.fk_hive = fk_hive;
     }
 
-    static getAll() {
-        return db.execute('SELECT * FROM hive_weight');
+    static async getAll() {
+        try {
+            const [results, fields] = await connection.execute('SELECT * FROM hive_weight');
+            return results;
+        } catch (err) {
+            console.error('Error executing query:', err);
+            throw err;
+        }
     }
 
-    static getById(id) {
-        return db.execute('SELECT * FROM hive_weight WHERE id_hive_weight = ?', [id]);
+    static async getById(id) {
+        try {
+            const [results, fields] = await connection.execute('SELECT * FROM hive_weight WHERE id = ?', [id]);
+            return results;
+        } catch (err) {
+            console.error('Error executing query:', err);
+            throw err;
+        }
     }
 
     insert() {
-        return db.execute(
-            'INSERT INTO hive_weight (weight, time_weight, TK_hive, TK_hive1) VALUES (?, ?, ?)',
-            [this.weight, this.time_weight, this.TK_hive]
+        return connection.execute(
+            'INSERT INTO hive_weight (weight, time_weight, fk_hive) VALUES (?, ?, ?)',
+            [this.weight, this.time_weight, this.fk_hive]
         );
     }
 
     update() {
-        return db.execute(
-            'UPDATE hive_weight SET weight = ?, time_weight = ?, TK_hive = ? WHERE id_hive_weight = ?',
-            [this.weight, this.time_weight, this.TK_hive, this.id_hive_weight]
+        return connection.execute(
+            'UPDATE hive_weight SET weight = ?, time_weight = ?, fk_hive = ? WHERE id = ?',
+            [this.weight, this.time_weight, this.fk_hive, this.id_hive_weight]
         );
     }
 
     static deleteById(id) {
-        return db.execute('DELETE FROM hive_weight WHERE id_hive_weight = ?', [id]);
+        return connection.execute('DELETE FROM hive_weight WHERE id = ?', [id]);
     }
 
-    static delete(weightEntry) {
-        return db.execute('DELETE FROM hive_weight WHERE id_hive_weight = ?', [weightEntry.id_hive_weight]);
+    delete() {
+        return connection.execute('DELETE FROM hive_weight WHERE id = ?', [this.id_hive_weight]);
     }
 };
