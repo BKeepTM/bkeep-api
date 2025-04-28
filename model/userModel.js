@@ -31,6 +31,17 @@ export default class User {
             throw err;
         }
     }
+    static async getByUsername(username){
+        try {
+            const [results, fields] = await connection.execute('SELECT * FROM user WHERE username = ?', [username]);
+            return results;
+        } catch (err) {
+            console.error('Error executing query:', err);
+            throw err;
+        }
+    }
+
+    
 
     insert() {
         return connection.execute(
