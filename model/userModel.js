@@ -3,13 +3,12 @@ import connection from "../util/database.js";
 //tukaj je osnovna struktura tabele user, in CRUD metode
 
 export default class User {
-    constructor(id, username, password, mail, settings, fk_hive) {
+    constructor(id, username, password, mail, settings) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.mail = mail;
         this.settings = settings;
-        this.fk_hive = fk_hive;
     }
 
     static async getAll() {
@@ -34,15 +33,15 @@ export default class User {
 
     insert() {
         return connection.execute(
-            'INSERT INTO user (username, password, mail, settings, fk_hive) VALUES (?, ?, ?, ?, ?)',
-            [this.username, this.password, this.mail, JSON.stringify(this.settings), this.fk_hive]
+            'INSERT INTO user (username, password, mail, settings) VALUES (?, ?, ?, ?)',
+            [this.username, this.password, this.mail, JSON.stringify(this.settings)]
         );
     }
 
     update() {
         return connection.execute(
-            'UPDATE user SET username = ?, password = ?, mail = ?, settings = ?, fk_hive = ? WHERE id = ?',
-            [this.username, this.password, this.mail, JSON.stringify(this.settings), this.fk_hive, this.id]
+            'UPDATE user SET username = ?, password = ?, mail = ?, settings = ? WHERE id = ?',
+            [this.username, this.password, this.mail, JSON.stringify(this.settings), this.id]
         );
     }
 

@@ -3,14 +3,15 @@ import connection from "../util/database.js";
 //tukaj je osnovna struktura tabele Hive, in CRUD metode
 
 export default class Hive {
-    constructor(id,name,location,type,status,fk_location,fk_notes){
+    constructor(id,name,location,type,status,id_location,id_notes,id_user){
     this.id = id;
     this.name = name;
     this.location = location;
     this.type = type;
     this.status = status;
-    this.fk_location = fk_location;
-    this.fk_notes = fk_notes;
+    this.id_location = id_location;
+    this.id_notes = id_notes;
+    this.id_user = id_user;
     }
 
     static async getAll() {
@@ -35,15 +36,15 @@ export default class Hive {
 
     insert() {
         return connection.execute(
-            'INSERT INTO hive (name, location, type, status, fk_location, fk_notes) VALUES (?, ?, ?, ?, ?, ?)',
-            [this.name, this.location, this.type, this.status, this.fk_location, this.fk_notes]
+            'INSERT INTO hive (name, location, type, status, id_location, id_notes, id_user) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [this.name, this.location, this.type, this.status, this.id_location, this.id_notes, this.id_user]
         );
     }
 
     update() {
         return connection.execute(
-            'UPDATE hive SET name = ?, location = ?, type = ?, status = ?, fk_location = ?, fk_notes = ? WHERE id = ?',
-            [this.name, this.location, this.type, this.status, this.fk_location, this.fk_notes, this.id]
+            'UPDATE hive SET name = ?, location = ?, type = ?, status = ?, id_location = ?, id_notes = ?, id_user = ? WHERE id = ?',
+            [this.name, this.location, this.type, this.status, this.id_location, this.id_notes, this.id_user, this.id]
         );
     }
 

@@ -3,11 +3,11 @@ import connection from "../util/database.js";
 //tukaj je osnovna struktura tabele HiveWeight, in CRUD metode
 
 export default class HiveWeight {
-    constructor(id_hive_weight, weight, time_weight, fk_hive) {
+    constructor(id_hive_weight, weight, time_weight, id_hive) {
         this.id_hive_weight = id_hive_weight;
         this.weight = weight;
         this.time_weight = time_weight;
-        this.fk_hive = fk_hive;
+        this.id_hive = id_hive;
     }
 
     static async getAll() {
@@ -32,15 +32,15 @@ export default class HiveWeight {
 
     insert() {
         return connection.execute(
-            'INSERT INTO hive_weight (weight, time_weight, fk_hive) VALUES (?, ?, ?)',
-            [this.weight, this.time_weight, this.fk_hive]
+            'INSERT INTO hive_weight (weight, time_weight, id_hive) VALUES (?, ?, ?)',
+            [this.weight, this.time_weight, this.id_hive]
         );
     }
 
     update() {
         return connection.execute(
-            'UPDATE hive_weight SET weight = ?, time_weight = ?, fk_hive = ? WHERE id = ?',
-            [this.weight, this.time_weight, this.fk_hive, this.id_hive_weight]
+            'UPDATE hive_weight SET weight = ?, time_weight = ?, id_hive = ? WHERE id = ?',
+            [this.weight, this.time_weight, this.id_hive, this.id_hive_weight]
         );
     }
 

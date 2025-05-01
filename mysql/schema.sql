@@ -33,8 +33,9 @@ CREATE TABLE `hive` (
   `location` varchar(45) NOT NULL,
   `type` enum('lr','az','db') NOT NULL,
   `status` enum('offline','online') NOT NULL,
-  `fk_location` int NOT NULL,
-  `fk_notes` int NOT NULL
+  `id_location` int NOT NULL,
+  `id_notes` int NOT NULL,
+  `id_user` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
@@ -47,7 +48,7 @@ CREATE TABLE `hive_weight` (
   `id` int NOT NULL primary key AUTO_INCREMENT,
   `weight` float NOT NULL,
   `time_weight` datetime NOT NULL,
-  `fk_hive` int NOT NULL
+  `id_hive` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
@@ -85,8 +86,7 @@ CREATE TABLE `user` (
   `username` varchar(45) NOT NULL,
   `password` varchar(45) NOT NULL,
   `mail` varchar(45) DEFAULT NULL,
-  `settings` json DEFAULT NULL,
-  `fk_hive` int NOT NULL
+  `settings` json DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
@@ -97,14 +97,15 @@ CREATE TABLE `user` (
 -- Indeksi tabele `hive`
 --
 ALTER TABLE `hive`
-  ADD KEY `fk_hive_location1_idx` (`fk_location`),
-  ADD KEY `fk_hive_notes1_idx` (`fk_notes`);
+  ADD KEY `fk_hive_location1_idx` (`id_location`),
+  ADD KEY `fk_hive_notes1_idx` (`id_notes`),
+  ADD KEY `fk_hive_user1_idx` (`id_user`);
 
 --
 -- Indeksi tabele `hive_weight`
 --
 ALTER TABLE `hive_weight`
-  ADD KEY `fk_hive_weight_hive1_idx` (`fk_hive`);
+  ADD KEY `fk_hive_weight_hive1_idx` (`id_hive`);
 
 --
 -- Indeksi tabele `location`
@@ -117,8 +118,6 @@ ALTER TABLE `hive_weight`
 --
 -- Indeksi tabele `user`
 --
-ALTER TABLE `user`
-  ADD KEY `fk_user_hive1_idx` (`fk_hive`);
 
 --
 -- Omejitve tabel za povzetek stanja
@@ -128,21 +127,16 @@ ALTER TABLE `user`
 -- Omejitve za tabelo `hive`
 --
 ALTER TABLE `hive`
-  ADD CONSTRAINT `fk_hive_location1` FOREIGN KEY (`fk_location`) REFERENCES `location` (`id`),
-  ADD CONSTRAINT `fk_hive_notes1` FOREIGN KEY (`fk_notes`) REFERENCES `notes` (`id`);
+  ADD CONSTRAINT `fk_hive_location1` FOREIGN KEY (`id_location`) REFERENCES `location` (`id`),
+  ADD CONSTRAINT `fk_hive_notes1` FOREIGN KEY (`id_notes`) REFERENCES `notes` (`id`),
+  ADD CONSTRAINT `fk_hive_user1_idx` FOREIGN KEY (`id_user`) REFERENCES `user` (`id`);
 
 --
 -- Omejitve za tabelo `hive_weight`
 --
 ALTER TABLE `hive_weight`
-  ADD CONSTRAINT `fk_hive_weight_hive1` FOREIGN KEY (`fk_hive`) REFERENCES `hive` (`id`);
+  ADD CONSTRAINT `fk_hive_weight_hive1` FOREIGN KEY (`id_hive`) REFERENCES `hive` (`id`);
 
---
--- Omejitve za tabelo `user`
---
-ALTER TABLE `user`
-  ADD CONSTRAINT `fk_user_hive1` FOREIGN KEY (`fk_hive`) REFERENCES `hive` (`id`);
-COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
