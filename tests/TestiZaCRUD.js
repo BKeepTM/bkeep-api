@@ -10,7 +10,7 @@ async function testHive() {
     console.log("Testing Hive model...");
 
     // Insert a new Hive
-    const hive = new Hive(15, "Zabavni panj", "Ljubljana", "lr", "online", 1, 1);
+    const hive = new Hive(null,"Zabavni panj", "Ljubljana", "lr", "online", 1, 1, 2);
     await hive.insert();
     console.log("Hive Insert complete");
 
@@ -25,8 +25,8 @@ async function testHive() {
     console.log("Hive Update complete");
 
     // Get Hive by ID
-    const hiveById = await Hive.getById(13);
-    console.log("Hive with ID 13:", hiveById);
+    const hiveById = await Hive.getById(1);
+    console.log("Hive with ID 1:", hiveById);
 
 }
 
@@ -34,7 +34,7 @@ async function testHiveWeight() {
     console.log("Testing HiveWeight model...");
 
     // Insert a new HiveWeight
-    const hiveWeight = new HiveWeight(13, 20.5, "2025-04-27 12:00:00", 2);
+    const hiveWeight = new HiveWeight(null,20.5, "2025-04-27 12:00:00", 4);
     await hiveWeight.insert();
     console.log("HiveWeight Insert complete");
 
@@ -51,7 +51,7 @@ async function testLocation() {
     console.log("Testing Location model...");
 
     // Insert a new Location
-    const location = new Location(13, 14.514, 46.056);
+    const location = new Location(null,14.514, 46.056);
     await location.insert();
     console.log("Location Insert complete");
 
@@ -68,7 +68,7 @@ async function testNotes() {
     console.log("Testing Notes model...");
 
     // Insert a new Note
-    const note = new Notes(13, "Important observation", "2025-04-27 12:00:00");
+    const note = new Notes(null, "Important observation", "2025-04-27 12:00:00");
     await note.insert();
     console.log("Note Insert complete");
 
@@ -85,7 +85,7 @@ async function testUser() {
     console.log("Testing User model...");
 
     // Insert a new User
-    const user = new User(13, "johndoe", "password123", "johndoe@example.com", "default", 2);
+    const user = new User(null,"johndoe", "password123", "johndoe@example.com", "default");
     await user.insert();
     console.log("User Insert complete");
 
@@ -94,17 +94,18 @@ async function testUser() {
     console.log("All Users:", users);
 
     // Delete User by ID
-    await User.deleteById(13);
-    console.log("User with ID 13 Deleted");
+    //await User.deleteById(1);   
+    //console.log("User with ID 1 Deleted");
 }
 
 async function runTests() {
     try {
-        //await testHive();
-        await testHiveWeight();
         await testLocation();
         await testNotes();
         await testUser();
+        await testHive();
+        await testHiveWeight();
+    
 
         console.log("All tests completed successfully.");
     } catch (err) {

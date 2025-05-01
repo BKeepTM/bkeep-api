@@ -1,6 +1,6 @@
-module.exports = {
- 
-    getHive : function(req, res, next){
-        return res.json({test:"test"})
+export default {
+    getHive(req, res, next) {
+      return res.json({ test: "test" });
     }
-}
+  };
+  
