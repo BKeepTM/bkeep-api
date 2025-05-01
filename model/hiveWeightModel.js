@@ -49,6 +49,7 @@ export default class HiveWeight {
     }
 
     delete() {
-        return connection.execute('DELETE FROM hive_weight WHERE id = ?', [this.id_hive_weight]);
+        return connection.execute('DELETE FROM hive_weight WHERE weight = ? AND time_weight = ? AND id_hive = ?', 
+            [this.weight, this.time_weight, this.id_hive]);
     }
 };

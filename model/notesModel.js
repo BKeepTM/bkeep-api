@@ -48,6 +48,7 @@ export default class Notes {
     }
 
     delete() {
-        return connection.execute('DELETE FROM notes WHERE id = ?', [this.id]);
+        return connection.execute('DELETE FROM notes WHERE content = ? AND time = ?', 
+            [this.content, this.time]);
     }
 };

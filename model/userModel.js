@@ -50,6 +50,7 @@ export default class User {
     }
 
     delete() {
-        return connection.execute('DELETE FROM user WHERE id = ?', [this.id]);
+        return connection.execute('DELETE FROM user WHERE username = ? AND mail = ?', 
+            [this.username, this.mail]);
     }
 };
