@@ -1,6 +1,6 @@
 # npm
 node_modules
-package-lock.json
+#package-lock.json to je za github actions
 npm-shrinkwrap.json
 *.log
 *.gz
