@@ -2,7 +2,7 @@ import connection from "../util/database.js";
 
 //tukaj je osnovna struktura tabele Notes, in CRUD metode
 
-export default class Notes {
+export default class NotesModel {
     constructor(id, content, time) {
         this.id = id;
         this.content = content;
