@@ -52,7 +52,10 @@ export default class Hive {
         return connection.execute('DELETE FROM hive WHERE id = ?', [id]);
     }
 
-    delete () {
-        return connection.execute('DELETE FROM hive WHERE id = ?', [this.id]);
-    }
+    delete() {
+        return connection.execute(
+          'DELETE FROM hive WHERE name = ? AND location = ? AND type = ? AND status = ? AND id_location = ? AND id_notes = ? AND id_user = ?',
+          [this.name, this.location, this.type, this.status, this.id_location, this.id_notes, this.id_user]
+        );
+      }
 };
