@@ -49,6 +49,7 @@ export default class Location {
     }
 
     delete() {
-        return connection.execute('DELETE FROM location WHERE id = ?', [this.id]);
+        return connection.execute('DELETE FROM location WHERE longitude = ? AND latitude = ? ', 
+            [this.longitude, this.latitude]);
     }
 };

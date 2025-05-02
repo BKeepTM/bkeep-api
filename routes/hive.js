@@ -1,8 +1,9 @@
-var express = require('express');
-var router = express.Router();
-var hiveController = require("../controller/hiveController.js")
+import express from 'express';
+import hiveController from '../controller/hiveController.js';
+
+const router = express.Router();
 
 /* GET hive. */
 router.get('/hive', hiveController.getHive);
 
-module.exports = router;
+export default router;

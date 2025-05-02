@@ -1,15 +1,21 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-const mysql = require('mysql2')
+import createError from 'http-errors';
+import express from 'express';
+import path from 'path';
+import cookieParser from 'cookie-parser';
+import logger from 'morgan';
+import mysql from 'mysql2';
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-var hiveRouter = require('./routes/hive');
+import indexRouter from './routes/index.js';
+import usersRouter from './routes/users.js';
+import hiveRouter from './routes/hive.js';
+
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
 var app = express();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -20,6 +26,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+// rabis jwt token kjerkoli razen za login
+app.use(
+  jwt({
+    secret: process.env.JWT_SECRET,
+    algorithms: [process.env.JWT_ALGORITHM],
+  }).unless({ path: ["/login", "/register"] })
+)
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
@@ -42,4 +55,4 @@ app.use(function(err, req, res, next) {
 });
 
 
-module.exports = app;
+export default app;
