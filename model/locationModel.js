@@ -2,7 +2,7 @@ import connection from "../util/database.js";
 
 //tukaj je osnovna struktura tabele Location, in CRUD metode
 
-export default class Location {
+export default class LocationModel {
     constructor(id, longitude, latitude) {
         this.id = id;
         this.longitude = longitude;

@@ -2,7 +2,7 @@ import connection from "../util/database.js";
 
 //tukaj je osnovna struktura tabele user, in CRUD metode
 
-export default class User {
+export default class UserModel {
     constructor(id, username, password, mail, settings) {
         this.id = id;
         this.username = username;
