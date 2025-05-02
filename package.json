@@ -19,6 +19,6 @@
     "mysql2": "^3.14.0"
   },
   "devDependencies": {
-    "mocha": "^11.1.0"
+    "mocha": "^11.2.2"
   }
 }
