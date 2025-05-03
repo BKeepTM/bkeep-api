@@ -2,7 +2,7 @@ import connection from "../util/database.js";
 
 //tukaj je osnovna struktura tabele HiveWeight, in CRUD metode
 
-export default class HiveWeight {
+export default class HiveWeightModel {
     constructor(id_hive_weight, weight, time_weight, id_hive) {
         this.id_hive_weight = id_hive_weight;
         this.weight = weight;

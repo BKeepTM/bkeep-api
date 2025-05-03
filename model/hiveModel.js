@@ -2,7 +2,7 @@ import connection from "../util/database.js";
 
 //tukaj je osnovna struktura tabele Hive, in CRUD metode
 
-export default class Hive {
+export default class HiveModel {
     constructor(id,name,location,type,status,id_location,id_notes,id_user){
     this.id = id;
     this.name = name;
