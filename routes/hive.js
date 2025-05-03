@@ -1,9 +1,16 @@
 import express from 'express';
-import hiveController from '../controller/hiveController.js';
+import HiveController from '../controller/hiveController.js';
 
 const router = express.Router();
 
-/* GET hive. */
-router.get('/hive', hiveController.getHive);
+/* GET */
+router.get('/hive/list', HiveController.list);
+router.get('/hive/:id', HiveController.show);
+
+/* POST */
+router.post('/hive', HiveController.create);
+router.post('/hive/update', HiveController.update);
+router.post('/hive/remove', HiveController.remove);
+
 
 export default router;
