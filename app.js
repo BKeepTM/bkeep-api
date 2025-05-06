@@ -6,7 +6,7 @@ import logger from 'morgan';
 import mysql from 'mysql2';
 
 import indexRouter from './routes/index.js';
-import usersRouter from './routes/user.js';
+import usersRouter from './routes/users.js';
 import hiveRouter from './routes/hive.js';
 import locationRouter from './routes/location.js';
 import notesRouter from './routes/notes.js';

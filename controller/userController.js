@@ -11,7 +11,7 @@ export default { // WIP
     login : function(req, res, next){
         const password = req.body.password
         const username = req.body.username
-        if (password === null || username === null){ // uporabnik ni poslal username/password
+        if (password === null || username === null || password == undefined || username == undefined){ // uporabnik ni poslal username/password
             return res.status(400).json({error:'Missing password or username'})
         }
 
