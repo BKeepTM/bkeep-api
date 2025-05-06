@@ -6,11 +6,12 @@ import logger from 'morgan';
 import mysql from 'mysql2';
 
 import indexRouter from './routes/index.js';
-import usersRouter from './routes/users.js';
+import usersRouter from './routes/user.js';
 import hiveRouter from './routes/hive.js';
 
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import {expressjwt} from "express-jwt";
 
 var app = express();
 
@@ -28,10 +29,10 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 // rabis jwt token kjerkoli razen za login
 app.use(
-  jwt({
+  expressjwt({
     secret: process.env.JWT_SECRET,
     algorithms: [process.env.JWT_ALGORITHM],
-  }).unless({ path: ["/login", "/register"] })
+  }).unless({ path: ["/users/login", "/users/register"] })
 )
 
 app.use('/', indexRouter);

@@ -1,0 +1,29 @@
+meta {
+  name: register
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:3000/users/register
+  body: json
+  auth: inherit
+}
+
+params:query {
+  : 
+}
+
+body:json {
+  {
+    "username":"nejc",
+    "password":"nejc",
+    "email":"nejc@nejc.si"
+  }
+}
+
+body:multipart-form {
+  username: user
+  email: user@user.com
+  password: user
+}
