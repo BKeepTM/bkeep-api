@@ -6,6 +6,23 @@ import hiveController from './hiveController.js'
 dotenv.config();
 
 export default { // WIP
+
+
+    create:function(req,res){
+        const userId = req.body.id; //TODO <---niamo se jwt
+        const username = req.body.username;
+        const password = req.body.password;
+        const mail = req.body.mail;
+        const settings = req.body.settings;
+    
+        const user = new UserModel(null,username,password,mail,settings);
+        user.insert()
+        .then(user => {return res.status(200).json(user)})
+        .catch(err => {
+            console.log(err);
+            res.status(500).send("Napaka pri ustvarjanju user");
+        });
+      },
     // Ta funckcija se uporablja za login
     // pridobi podatke username in passoword iz request.body
     login : function(req, res, next){
@@ -83,6 +100,21 @@ export default { // WIP
         })
         console.log("end of register")
     },
+
+
+    list:function(req,res){
+        UserModel.getAll()
+        .then(user=>{
+          return res.status(200).json(user);
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).send("Napaka pri list user");
+        });
+      },
+    
+
+
     show:function(req,res){
         const userId = req.params.id;
         UserModel.getById(userId)
