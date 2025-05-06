@@ -8,6 +8,9 @@ import mysql from 'mysql2';
 import indexRouter from './routes/index.js';
 import usersRouter from './routes/user.js';
 import hiveRouter from './routes/hive.js';
+import locationRouter from './routes/location.js';
+import notesRouter from './routes/notes.js';
+import hiveWeightRouter from './routes/hiveWeight.js';
 
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -36,8 +39,11 @@ app.use(
 )
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
-app.use('/',hiveRouter);
+app.use('/', usersRouter);
+app.use('/', hiveRouter);
+app.use('/', locationRouter);
+app.use('/', notesRouter);
+app.use('/',hiveWeightRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
