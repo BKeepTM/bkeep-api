@@ -15,8 +15,13 @@ import hiveWeightRouter from './routes/hiveWeight.js';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import {expressjwt} from "express-jwt";
+import cors from "cors";
+
+
 
 var app = express();
+
+app.use(cors());
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
