@@ -15,21 +15,23 @@ export default { // WIP
             return res.status(400).json({error:'Missing password or username'})
         }
         
-        const user = UserModel.getByUsername(req.body.username)
-
-        if (user === null){ // preveri če obstaja user...
-            return res.status(403).json({error:'username or password is incorrect'})
-        }
-
-        if (bcrypt.compare(password,user.password)){ // preveri ce je geslo ok
-            const payload = {username:username,group:"not implemented", id:user.id}
-            return res.status('200').json( // vrne token
-                {token: jwt.sign({ exp: Math.floor(Date.now() / 1000) + (60 * 60)*12, //12 ur trajanja
-                    data: payload
-                    },process.env.JWT_SECRET)}) 
-        }
-        return res.status(403).json({error:'username or password is incorrect'})
-
+       UserModel.getByUsername(req.body.username).then( user => {
+           if (user.length < 1){ // preveri če obstaja user...
+               return res.status(403).json({error:'username or password is incorrect'})
+           }
+           if (bcrypt.compare(password,user.password)){ // preveri ce je geslo ok
+               const payload = {username:username,group:"not implemented", id:user.id}
+               console.log("Succesful login")
+               return res.status('200').json( // vrne token
+                   {token: jwt.sign({ exp: Math.floor(Date.now() / 1000) + (60 * 60)*12, //12 ur trajanja
+                           data: payload
+                       },process.env.JWT_SECRET)})
+           }
+           return res.status(403).json({error:'username or password is incorrect'})
+        }).catch(error => {
+            console.log("Login error: ",error)
+            return res.status(500).json({error: 'error logging in'})
+       })
     },
     //funckija za registracijo
     //pridobi username, password, email od registracije.
@@ -38,27 +40,47 @@ export default { // WIP
         const username = req.body.username
         const email = req.body.email
         console.log(req.body)
-        if (password == undefined || username == undefined || email == undefined) 
+        if (password == undefined || username == undefined || email == undefined){
+            console.log("missing fields")
             return res.status(400).json({error: "Missing required fields"})
+        }
+
+
 
         //TODO preveri varnost gesla, validiraj e   mail
 
-        const userExists = UserModel.getByUsername(req.body.username).then((user) =>{
-            if (user != null)
-                return res.status(400).json({error: "Username already exists!"})
+        UserModel.getByUsername(req.body.username).then(user =>{
+            if (user.length > 0){
+                console.log("user already exists")
+                //return res.json({error: "Username already exists!"},400)
+            }
 
-            bcrypt.genSalt(saltRounds, function(err, salt) {
-                bcrypt.hash(myPlaintextPassword, salt, function(err, hash) {
-                    var user = new User(null,username,password,email,{});
-                    user.password = hash;
-                    user.insert();
-                    return res.status(200).json({error: "User registered succesfully"})
+            console.log("user",user)
+            bcrypt.genSalt(10, function(err, salt) {
+                if (err){
+                    console.log(err)
+                    res.status(500).json("Error registering user")
+                }
+                bcrypt.hash(password, salt, function(err, hash) {
+                    if (err){
+                        console.log(err)
+                        res.status(500).send("Error registering user")
+                    }
+                    const userInsert = new UserModel(null, username, password, email, {});
+                    userInsert.password = hash;
+                    userInsert.insert().then(() => {
+                        return res.status(200).json({message: "User registered succesfully"})
+                    }).catch((err) => {
+                        console.log(err)
+                        return res.status(500).json({error: "user register failed"})
+                    })
                 });
             });
+        }).catch(err => {
+            console.log("error in register user")
+            console.log(err)
+            //return res.status(500).send("Error registering user")
         })
-
-        
-
-
+        console.log("end of register")
     }
 }

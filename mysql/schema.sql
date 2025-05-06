@@ -84,7 +84,7 @@ CREATE TABLE `notes` (
 CREATE TABLE `user` (
   `id` int NOT NULL primary key AUTO_INCREMENT,
   `username` varchar(45) NOT NULL,
-  `password` varchar(45) NOT NULL,
+  `password` varchar(100) NOT NULL,
   `mail` varchar(45) DEFAULT NULL,
   `settings` json DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
