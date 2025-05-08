@@ -4,8 +4,7 @@ node_modules
 npm-shrinkwrap.json
 *.log
 *.gz
-# za jetbrai
-.idea
+
 # Coveralls
 .nyc_output
 coverage
