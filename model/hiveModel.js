@@ -58,4 +58,12 @@ export default class HiveModel {
           [this.name, this.location, this.type, this.status, this.id_location, this.id_notes, this.id_user]
         );
       }
+
+    static async search(name) {
+        console.log("ime:",name)
+        const [results, fields] = await connection.execute(
+         'SELECT * FROM hive WHERE name = ?', [name]
+        );
+        return results;
+    }
 };

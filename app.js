@@ -14,8 +14,14 @@ import hiveWeightRouter from './routes/hiveWeight.js';
 
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import {expressjwt} from "express-jwt";
+import cors from "cors";
+
+
 
 var app = express();
+
+app.use(cors());
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -29,6 +35,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+// rabis jwt token kjerkoli razen za login
+app.use(
+  expressjwt({
+    secret: process.env.JWT_SECRET,
+    algorithms: [process.env.JWT_ALGORITHM],
+  }).unless({ path: ["/users/login", "/users/register", "/hive/search"] })
+)
 
 app.use('/', indexRouter);
 app.use('/', usersRouter);

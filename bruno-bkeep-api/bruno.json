@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "bruno-bkeep-api",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}
