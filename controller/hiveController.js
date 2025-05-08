@@ -68,6 +68,16 @@ const HiveController = {
       console.error(err);
       return res.status(500).send("Napaka pri brisanju hive");
     });
+  },
+
+  search:function(req,res){
+    const name = req.body.name;
+    HiveModel.search(name)
+    .then((hives)=> {return res.status(200).json(hives)})
+    .catch(err =>{
+      console.log(err);
+      return res.status(500).send("Napaka pri iskanju panjev");
+    })
   }
 
 }

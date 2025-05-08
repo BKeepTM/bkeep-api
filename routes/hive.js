@@ -5,6 +5,7 @@ const router = express.Router();
 
 /* GET */
 router.get('/hive/list', HiveController.list);
+router.get('/hive/search', HiveController.search)
 router.get('/hive/:id', HiveController.show);
 
 /* POST */
