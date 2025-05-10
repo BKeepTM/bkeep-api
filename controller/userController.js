@@ -31,20 +31,29 @@ export default { // WIP
         if (password === null || username === null || password == undefined || username == undefined){ // uporabnik ni poslal username/password
             return res.status(400).json({error:'Missing password or username'})
         }
-
+        console.log("login data: ", req.body)
         UserModel.getByUsername(req.body.username).then( user => {
             if (user.length < 1){ // preveri če obstaja user...
                 return res.status(403).json({error:'username or password is incorrect'})
             }
-            if (bcrypt.compare(password,user.password)){ // preveri ce je geslo ok
+            console.log("Login username matching:",user)
+            console.log("password and hash:",password,user.password)
+            bcrypt.compare(password,user[0].password).then( isOk => { // preveri ce je geslo ok
+                if (!isOk)
+                    return res.status(403).json({error:'username or password is incorrect'})
+                    
                 const payload = {username:username,group:"not implemented", id:user.id}
                 console.log("Succesful login")
                 return res.status('200').json( // vrne token
                     {token: jwt.sign({ exp: Math.floor(Date.now() / 1000) + (60 * 60)*12, //12 ur trajanja
                             data: payload
                         },process.env.JWT_SECRET)})
-            }
-            return res.status(403).json({error:'username or password is incorrect'})
+            }).catch(error => {
+                console.log("erro in bcrypt:",error)
+                return res.status(403).json({error:'username or password is incorrect'})
+            })
+            
+            //return res.status(403).json({error:'username or password is incorrect'})
         }).catch(error => {
             console.log("Login error: ",error)
             return res.status(500).json({error: 'error logging in'})
