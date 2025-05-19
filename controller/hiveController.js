@@ -90,8 +90,13 @@ const HiveController = {
       console.log(err);
       return res.status(500).send("Napaka pri iskanju panjev");
     })
+  },
+  getByLoaction:function(req,res){
+    const x1 = req.body.x1;
+    const y1 = req.body.y1;
+    const x2 = req.body.x2;
+    const y2 = req.body.x2;
   }
-
 }
 
 export default HiveController;
