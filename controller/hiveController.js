@@ -7,7 +7,7 @@ const HiveController = {
     const location = req.body.location;
     const type = req.body.type;
     const status = req.body.status;
-    const userId = req.body.id; //TODO <---niamo se jwt
+    const userId = req.auth.data.id
 
     const hive = new HiveModel(null,name,location,type,status, userId, userId, userId);
     hive.insert()
@@ -19,7 +19,8 @@ const HiveController = {
   },
 
   list:function(req,res){
-    HiveModel.getAll()
+    const userId = req.auth.data.id
+    HiveModel.getAll(userId)
     .then(hive=>{
       return res.status(200).json(hive);
     })
@@ -31,7 +32,8 @@ const HiveController = {
 
   show:function(req,res){
     const hiveId = req.params.id;
-    HiveModel.getById(hiveId)
+    const userId = req.auth.data.id
+    HiveModel.getById(hiveId,userId)
     .then(hive => {
       return res.status(200).json(hive);
     })
@@ -48,10 +50,9 @@ const HiveController = {
     const type = req.body.type ?? null;
     const status = req.body.status ?? null;
     const id_location = req.body.id_location ?? null;
-    const id_notes = req.body.id_notes ?? null;
-    const id_user = req.body.id_user ?? null;
+    const id_user = req.auth.data.id ?? null;
 
-    const hive = new HiveModel(hiveId,name,location,type,status,id_location,id_notes,id_user);
+    const hive = new HiveModel(hiveId,name,location,type,status,id_location,id_user);
     hive.update()
     .then(hive => {return res.status(200).json(hive)})
     .catch(err => {
@@ -61,8 +62,13 @@ const HiveController = {
   },
 
   remove:function(req,res){
-    const hiveId = req.params.id ?? req.body.id;
-    HiveModel.deleteById(hiveId)
+    const hiveId = req.params.id ?? req.body.id;  
+    const userId = req.auth.data.id
+
+    console.log("hiveid", hiveId)
+    console.log("userId", userId)
+
+    HiveModel.deleteById(hiveId, userId)
     .then(()=> {return res.status(200).send("Uspesno zbrisan panj")})
     .catch(err => {
       console.error(err);
@@ -72,7 +78,13 @@ const HiveController = {
 
   search:function(req,res){
     const name = req.body.name;
-    HiveModel.search(name)
+    const userId = req.auth.data.id;
+
+    console.log(name)
+    console.log(userId)
+
+
+    HiveModel.search(name,userId)
     .then((hives)=> {return res.status(200).json(hives)})
     .catch(err =>{
       console.log(err);
