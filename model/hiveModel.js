@@ -65,4 +65,7 @@ export default class HiveModel {
         );
         return results;
     }
+     static async getByLocation(x) { // geopstroske poizvedbe
+
+     }
 };
