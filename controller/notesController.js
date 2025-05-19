@@ -1,68 +1,85 @@
 import NotesModel from "../model/notesModel.js";
 
 const NotesController = {
+  async create(req, res) {
+    const userId = req.auth.data.id;
+    const { content, time } = req.body;
+    const hiveId = req.params.hiveId;
 
-  create:function(req,res){
-    const notesId = req.body.id; //TODO <---niamo se jwt
-    const content = req.body.content;
-    const time = req.body.time;
+    try {
+      const isAllowed = await NotesModel.hiveBelongsToUser(hiveId, userId);
+      if (!isAllowed) return res.status(403).send("Dostop do panja zavrnjen.");
 
-    const notes = new NotesModel(null,content,time);
-    notes.insert()
-    .then(notes => {return res.status(200).json(notes)})
-    .catch(err => {
-        console.log(err);
-        res.status(500).send("Napaka pri ustvarjanju notes");
-    });
-  },
-
-  list:function(req,res){
-    NotesModel.getAll()
-    .then(notes=>{
-      return res.status(200).json(notes);
-    })
-    .catch(err => {
-        console.log(err);
-        res.status(500).send("Napaka pri list notes");
-    });
-  },
-
-  show:function(req,res){
-    const notesId = req.params.id;
-    NotesModel.getById(notesId)
-    .then(notes => {
-      return res.status(200).json(notes);
-    })
-    .catch(err => {
-        console.log(err);
-        res.status(500).send("Napaka pri show notes");
-    });
-  },
-
-  update: function(req,res){
-    const notesId = req.params.id || req.body.id;
-    const content = req.body.content ?? null;
-    const time = req.body.time ?? null;
-
-    const notes = new NotesModel(notesId,content,time);
-    notes.update()
-    .then(notes => {return res.status(200).json(notes)})
-    .catch(err => {
+      const note = new NotesModel(null, content, time, hiveId);
+      const [result] = await note.insert();
+      return res.status(201).json({ id: result.insertId });
+    } catch (err) {
       console.error(err);
-      return res.status(500).send("Napaka pri posodabljanju notes");
-    });
+      return res.status(500).send("Napaka pri ustvarjanju notes.");
+    }
   },
 
-  remove:function(req,res){
-    const notesId = req.params.id ?? req.body.id;
-    NotesModel.deleteById(notesId)
-    .then(()=> {return res.status(200).send("Uspesno zbrisan notes")})
-    .catch(err => {
-        console.error(err);
-        return res.status(500).send("Napaka pri brisanju notes");
-      });
-  }
+  async list(req, res) {
+    const userId = req.auth.data.id;
 
-}
+    try {
+      const notes = await NotesModel.getAllByUser(userId);
+      return res.status(200).json(notes);
+    } catch (err) {
+      console.error(err);
+      return res.status(500).send("Napaka pri pridobivanju notes.");
+    }
+  },
+
+  async show(req, res) {
+    const noteId = req.params.id;
+    const userId = req.auth.data.id;
+
+    try {
+      const note = await NotesModel.getByIdForUser(noteId, userId);
+      if (!note) return res.status(403).send("Dostop zavrnjen ali notes ne obstaja.");
+      return res.status(200).json(note);
+    } catch (err) {
+      console.error(err);
+      return res.status(500).send("Napaka pri prikazu notes.");
+    }
+  },
+
+  async update(req, res) {
+    const userId = req.auth.data.id;
+    const noteId = req.params.id || req.body.id;
+    const { content, time, id_hive } = req.body;
+
+    try {
+      const existingNote = await NotesModel.getByIdForUser(noteId, userId);
+      if (!existingNote) return res.status(403).send("Dostop zavrnjen ali notes ne obstaja.");
+
+      const hiveToUse = id_hive ?? existingNote.id_hive;
+      const isAllowed = await NotesModel.hiveBelongsToUser(hiveToUse, userId);
+      if (!isAllowed) return res.status(403).send("Nimaš dostopa do novega panja.");
+
+      const note = new NotesModel(noteId, content ?? existingNote.content, time ?? existingNote.time, hiveToUse);
+      await note.update();
+      return res.status(200).json({ message: "Uspešno posodobljeno." });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).send("Napaka pri posodobitvi notes.");
+    }
+  },
+
+  async remove(req, res) {
+    const userId = req.auth.data.id;
+    const noteId = req.params.id ?? req.body.id;
+
+    try {
+      const [result] = await NotesModel.deleteByIdForUser(noteId, userId);
+      if (result.affectedRows === 0) return res.status(403).send("Ni dostopa ali notes ne obstaja.");
+      return res.status(200).send("Uspešno zbrisano.");
+    } catch (err) {
+      console.error(err);
+      return res.status(500).send("Napaka pri brisanju notes.");
+    }
+  }
+};
 
 export default NotesController;

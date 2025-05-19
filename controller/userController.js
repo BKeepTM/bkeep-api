@@ -7,22 +7,6 @@ dotenv.config();
 
 export default { // WIP
 
-
-    create:function(req,res){
-        const userId = req.body.id; //TODO <---niamo se jwt
-        const username = req.body.username;
-        const password = req.body.password;
-        const mail = req.body.mail;
-        const settings = req.body.settings;
-    
-        const user = new UserModel(null,username,password,mail,settings);
-        user.insert()
-        .then(user => {return res.status(200).json(user)})
-        .catch(err => {
-            console.log(err);
-            res.status(500).send("Napaka pri ustvarjanju user");
-        });
-      },
     // Ta funckcija se uporablja za login
     // pridobi podatke username in passoword iz request.body
     login : function(req, res, next){
@@ -42,7 +26,7 @@ export default { // WIP
                 if (!isOk)
                     return res.status(403).json({error:'username or password is incorrect'})
                     
-                const payload = {username:username,group:"not implemented", id:user.id}
+                const payload = {username:username,group:"not implemented", id:user[0].id}
                 console.log("Succesful login")
                 return res.status('200').json( // vrne token
                     {token: jwt.sign({ exp: Math.floor(Date.now() / 1000) + (60 * 60)*12, //12 ur trajanja
