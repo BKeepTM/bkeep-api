@@ -3,8 +3,8 @@ services:
     container_name: express_mysql
     image: mysql:9.1
     environment:
-      - MYSQL_ROOT_PASSWORD=root
-      - MYSQL_DATABASE=db_bkeep
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+      - MYSQL_DATABASE=${DB_DATABASE}
     ports:
       - "3306:3306"
     networks:

@@ -1,6 +1,6 @@
 services:
   database:
-    container_name: express_mysql
+    container_name: bkeep_mysql
     image: mysql:9.1
     environment:
       - MYSQL_ROOT_PASSWORD=root
@@ -8,30 +8,33 @@ services:
     ports:
       - "3306:3306"
     networks:
-      - express
+      - bkeep-api
+    healthcheck:
+          test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+          timeout: 20s
+          retries: 10
   web:
-    container_name: express_web
+    container_name: bkeep_web
     image: bkeepapi/bkeep-api:0.0.1
-    volumes:
-      - type: bind
-        source: ./
-        target: /usr/src/app
     ports:
-      - "3000:3000"
+      - "80:80"
     networks:
-      - express
+      - bkeep-api
+    depends_on:
+      database:
+        condition: service_healthy
     env_file: ".env"
   phpmyadmin:
-    container_name: express_phpmyadmin
+    container_name: bkeep_phpmyadmin
     image: phpmyadmin/phpmyadmin
     depends_on:
       - database
     ports:
       - "8080:80"
     environment:
-      PMA_HOST: express_mysqla
+      PMA_HOST: bkeep_mysql
       PMA_PORT: 3306
     networks:
-      - express
+      - bkeep-api
 networks:
-    express:
+    bkeep-api:
