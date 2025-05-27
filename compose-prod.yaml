@@ -17,7 +17,7 @@ services:
           retries: 10
   web:
     container_name: bkeep_web
-    image: bkeepapi/bkeep-api:0.0.1
+    image: bkeepapi/bkeep-api:0.0.2
     ports:
       - "80:80"
     networks:
