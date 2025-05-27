@@ -26,6 +26,11 @@ SET time_zone = "+00:00";
 --
 -- Struktura tabele `hive`
 --
+CREATE USER 'bkeep'@'%' IDENTIFIED BY 'bkeep';
+GRANT ALL PRIVILEGES ON `db_bkeep`.* TO 'bkeep'@'%';
+
+CREATE DATABASE IF NOT EXISTS `db_bkeep` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+USE `db_bkeep`;
 
 CREATE TABLE `hive` (
   `id` int NOT NULL,
