@@ -2,8 +2,8 @@ import LocationModel from "../model/locationModel.js";
 
 const LocationController = {
 
-  create:function(req,res){
-    const locationId = req.body.id; //TODO <---niamo se jwt
+  create: async function(req,res){
+    const locationId = req.body.id; 
     const longitude = req.body.longitude;
     const latitude = req.body.latitude;
 

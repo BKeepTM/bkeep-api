@@ -1,22 +1,44 @@
 import HiveModel from "../model/hiveModel.js";
+import LocationModel from "../model/locationModel.js";
 
 const HiveController = {
 
-  create:function(req,res){
-    const name = req.body.name;
-    const location = req.body.location;
-    const type = req.body.type;
-    const status = req.body.status;
-    const userId = req.auth.data.id
+create: async function (req, res) {
+  try {
+    const { name, type, status, longitude, latitude, location } = req.body;
+    const userId = req.auth.data.id;
 
-    const hive = new HiveModel(null,name,location,type,status, userId, userId, userId);
-    hive.insert()
-    .then(hive => {return res.status(200).json(hive)})
-    .catch(err => {
-        console.log(err);
-        res.status(500).send("Napaka pri ustvarjanju hajva");
-    });
-  },
+    console.log("name",name)
+    console.log("type",type)
+    console.log("long",longitude)
+    console.log("lat",latitude)
+    console.log("location",location)
+    console.log("user",userId)
+
+    const locationObj = new LocationModel(null, longitude, latitude);
+    const insertedLocation = await locationObj.insert(); 
+
+    console.log("location id:", insertedLocation)
+
+    const hive = new HiveModel(
+      null,
+      name,
+      location,          
+      type,
+      status,
+      insertedLocation.id, 
+      userId
+    );
+
+    const insertedHive = await hive.insert();
+    return res.status(200).json(insertedHive);
+
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Napaka pri ustvarjanju panja");
+  }
+},
+
 
   list:function(req,res){
     const userId = req.auth.data.id

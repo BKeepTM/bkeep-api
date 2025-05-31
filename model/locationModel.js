@@ -1,7 +1,5 @@
 import connection from "../util/database.js";
 
-//tukaj je osnovna struktura tabele Location, in CRUD metode
-
 export default class LocationModel {
     constructor(id, longitude, latitude) {
         this.id = id;
@@ -30,12 +28,21 @@ export default class LocationModel {
         }
     }
 
-    insert() {
-        return connection.execute(
-            'INSERT INTO location (longitude, latitude) VALUES (?, ?)',
-            [this.longitude, this.latitude]
-        );
-    }
+     async insert() {
+    const [result] = await connection.execute(
+      'INSERT INTO location (longitude, latitude) VALUES (?, ?)',
+      [this.longitude, this.latitude]
+    );
+
+    console.log(result)
+    this.id = result.insertId;
+
+    return {
+      id: this.id,
+      longitude: this.longitude,
+      latitude: this.latitude
+    };
+  }
 
     update() {
         return connection.execute(
