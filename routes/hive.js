@@ -13,5 +13,7 @@ router.post('/hive', HiveController.create);
 router.post('/hive/update', HiveController.update);
 router.post('/hive/remove', HiveController.remove);
 
+router.put('/hive/:id', HiveController.update);
+
 
 export default router;

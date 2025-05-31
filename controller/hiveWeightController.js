@@ -18,7 +18,8 @@ const HiveWeightController = {
   },
 
   list:function(req,res){
-    HiveWeightModel.getAll()
+    const userId = req.auth.data.id
+    HiveWeightModel.getAll(userId)
     .then(hiveWeight=>{
       return res.status(200).json(hiveWeight);
     })
