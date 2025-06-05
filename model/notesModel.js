@@ -19,15 +19,15 @@ export default class NotesModel {
         return results;
     }
 
-    static async getByIdForUser(noteId, userId) {
+    static async getByIdForUser(hiveId, userId) {
         const [results] = await connection.execute(
             `SELECT notes.* 
              FROM notes 
              JOIN hive ON notes.id_hive = hive.id 
-             WHERE notes.id = ? AND hive.id_user = ?`,
-            [noteId, userId]
+             WHERE notes.id_hive = ? AND hive.id_user = ?`,
+            [hiveId, userId]
         );
-        return results[0] ?? null;
+        return results ?? null;
     }
 
     static async hiveBelongsToUser(hiveId, userId) {
