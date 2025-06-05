@@ -4,7 +4,12 @@ const NotesController = {
   async create(req, res) {
     const userId = req.auth.data.id;
     const { content, time } = req.body;
-    const hiveId = req.params.hiveId;
+    const hiveId = req.body.hiveId;
+
+    console.log("User", userId);
+    console.log("content", content);
+    console.log("time", time);
+    console.log("hiveId", hiveId);
 
     try {
       const isAllowed = await NotesModel.hiveBelongsToUser(hiveId, userId);
@@ -32,11 +37,11 @@ const NotesController = {
   },
 
   async show(req, res) {
-    const noteId = req.params.id;
+    const hiveId = req.params.id;
     const userId = req.auth.data.id;
 
     try {
-      const note = await NotesModel.getByIdForUser(noteId, userId);
+      const note = await NotesModel.getByIdForUser(hiveId, userId);
       if (!note) return res.status(403).send("Dostop zavrnjen ali notes ne obstaja.");
       return res.status(200).json(note);
     } catch (err) {
@@ -69,7 +74,10 @@ const NotesController = {
 
   async remove(req, res) {
     const userId = req.auth.data.id;
-    const noteId = req.params.id ?? req.body.id;
+    const noteId =  req.body.id;
+
+    console.log("UserId", userId);
+    console.log("notesId",noteId);
 
     try {
       const [result] = await NotesModel.deleteByIdForUser(noteId, userId);

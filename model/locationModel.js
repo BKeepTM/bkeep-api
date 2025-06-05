@@ -9,7 +9,10 @@ export default class LocationModel {
 
     static async getAll() {
         try {
-            const [results, fields] = await connection.execute('SELECT * FROM location');
+            const [results, fields] = await connection.execute(
+                `SELECT location.* , hive.location, hive.name
+                 FROM location
+                 JOIN hive ON hive.id_location = location.id;`);
             return results;
         } catch (err) {
             console.error('Error executing query:', err);

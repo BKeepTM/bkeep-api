@@ -23,9 +23,12 @@ export default class HiveWeightModel {
         }
     }
 
-    static async getById(id) {
+    static async getById(userId,id) {
         try {
-            const [results, fields] = await connection.execute('SELECT * FROM hive_weight WHERE id = ?', [id]);
+            const [results, fields] = await connection.execute(
+                `SELECT * FROM hive_weight 
+                JOIN hive ON hive_weight.id_hive = hive.id
+                WHERE hive.id_user = ? AND hive.id = ?`, [userId, id]);
             return results;
         } catch (err) {
             console.error('Error executing query:', err);
