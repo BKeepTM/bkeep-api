@@ -32,6 +32,16 @@ GRANT ALL PRIVILEGES ON `db_bkeep`.* TO 'bkeep'@'%';
 CREATE DATABASE IF NOT EXISTS `db_bkeep` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
 USE `db_bkeep`;
 
+  --
+-- Database: `db_bkeep`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `hive`
+--
+
 CREATE TABLE `hive` (
   `id` int NOT NULL,
   `name` varchar(45) NOT NULL,
@@ -45,7 +55,7 @@ CREATE TABLE `hive` (
 -- --------------------------------------------------------
 
 --
--- Struktura tabele `hive_weight`
+-- Table structure for table `hive_weight`
 --
 
 CREATE TABLE `hive_weight` (
@@ -58,7 +68,7 @@ CREATE TABLE `hive_weight` (
 -- --------------------------------------------------------
 
 --
--- Struktura tabele `location`
+-- Table structure for table `location`
 --
 
 CREATE TABLE `location` (
@@ -70,7 +80,7 @@ CREATE TABLE `location` (
 -- --------------------------------------------------------
 
 --
--- Struktura tabele `notes`
+-- Table structure for table `notes`
 --
 
 CREATE TABLE `notes` (
@@ -83,7 +93,7 @@ CREATE TABLE `notes` (
 -- --------------------------------------------------------
 
 --
--- Struktura tabele `user`
+-- Table structure for table `user`
 --
 
 CREATE TABLE `user` (
@@ -94,12 +104,30 @@ CREATE TABLE `user` (
   `settings` json DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- --------------------------------------------------------
+
 --
--- Indeksi zavrženih tabel
+-- Table structure for table `weather`
+--
+
+CREATE TABLE `weather` (
+  `id` int NOT NULL,
+  `report_date` date NOT NULL,
+  `location_x` float NOT NULL, -- tak pac je :)
+  `location_y` float NOT NULL,
+  `temperature` int NOT NULL,
+  `air_pressure` int NOT NULL,
+  `humidity` int NOT NULL,
+  `wind_speed` int NOT NULL,
+  `precipitation` int NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Indexes for dumped tables
 --
 
 --
--- Indeksi tabele `hive`
+-- Indexes for table `hive`
 --
 ALTER TABLE `hive`
   ADD PRIMARY KEY (`id`),
@@ -107,84 +135,96 @@ ALTER TABLE `hive`
   ADD KEY `fk_hive_user1_idx` (`id_user`);
 
 --
--- Indeksi tabele `hive_weight`
+-- Indexes for table `hive_weight`
 --
 ALTER TABLE `hive_weight`
   ADD PRIMARY KEY (`id`),
   ADD KEY `fk_hive_weight_hive1_idx` (`id_hive`);
 
 --
--- Indeksi tabele `location`
+-- Indexes for table `location`
 --
 ALTER TABLE `location`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indeksi tabele `notes`
+-- Indexes for table `notes`
 --
 ALTER TABLE `notes`
   ADD PRIMARY KEY (`id`),
   ADD KEY `fk_notes_hive1` (`id_hive`);
 
 --
--- Indeksi tabele `user`
+-- Indexes for table `user`
 --
 ALTER TABLE `user`
   ADD PRIMARY KEY (`id`);
 
 --
--- AUTO_INCREMENT zavrženih tabel
+-- Indexes for table `weather`
+--
+ALTER TABLE `weather`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
 --
 
 --
--- AUTO_INCREMENT tabele `hive`
+-- AUTO_INCREMENT for table `hive`
 --
 ALTER TABLE `hive`
   MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT tabele `hive_weight`
+-- AUTO_INCREMENT for table `hive_weight`
 --
 ALTER TABLE `hive_weight`
   MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT tabele `location`
+-- AUTO_INCREMENT for table `location`
 --
 ALTER TABLE `location`
   MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT tabele `notes`
+-- AUTO_INCREMENT for table `notes`
 --
 ALTER TABLE `notes`
   MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT tabele `user`
+-- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
   MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
--- Omejitve tabel za povzetek stanja
+-- AUTO_INCREMENT for table `weather`
+--
+ALTER TABLE `weather`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- Constraints for dumped tables
 --
 
 --
--- Omejitve za tabelo `hive`
+-- Constraints for table `hive`
 --
 ALTER TABLE `hive`
   ADD CONSTRAINT `fk_hive_location1` FOREIGN KEY (`id_location`) REFERENCES `location` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `fk_hive_user1_idx` FOREIGN KEY (`id_user`) REFERENCES `user` (`id`) ON DELETE CASCADE;
 
 --
--- Omejitve za tabelo `hive_weight`
+-- Constraints for table `hive_weight`
 --
 ALTER TABLE `hive_weight`
   ADD CONSTRAINT `fk_hive_weight_hive1` FOREIGN KEY (`id_hive`) REFERENCES `hive` (`id`) ON DELETE CASCADE;
 
 --
--- Omejitve za tabelo `notes`
+-- Constraints for table `notes`
 --
 ALTER TABLE `notes`
   ADD CONSTRAINT `fk_notes_hive1` FOREIGN KEY (`id_hive`) REFERENCES `hive` (`id`) ON DELETE CASCADE;
