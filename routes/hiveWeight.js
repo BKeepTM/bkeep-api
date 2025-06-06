@@ -4,9 +4,9 @@ import HiveWeightController from '../controller/hiveWeightController.js';
 const router = express.Router();
 
 /* GET */
-router.get('/hiveWeight/list', HiveWeightController.list);
+router.get('/hiveWeight/list', HiveWeightController.listByUser);
 router.get('/hiveWeight/:id', HiveWeightController.show);
-
+router.get('/hiveWeight/getAll', HiveWeightController.list);
 /* POST */
 router.post('/hiveWeight', HiveWeightController.create);
 router.post('/hiveWeight/update', HiveWeightController.update);

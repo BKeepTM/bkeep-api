@@ -8,7 +8,7 @@ export default class NotesModel {
         this.id_hive = id_hive;
     }
 
-    static async getAllByUser(userId) {
+    static async getAllByUserId(userId) {
         const [results] = await connection.execute(
             `SELECT notes.* 
              FROM notes 
@@ -17,6 +17,15 @@ export default class NotesModel {
             [userId]
         );
         return results;
+    }
+     static async getAll() { // getall metode za admin klice... prosim ne spreminjaj
+        try {
+            const [results, fields] = await connection.execute(`SELECT location FROM location`);
+            return results;
+        } catch (err) {
+            console.error('Error executing query:', err);
+            throw err;
+        }
     }
 
     static async getByIdForUser(hiveId, userId) {

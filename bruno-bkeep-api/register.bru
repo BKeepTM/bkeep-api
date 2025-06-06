@@ -5,18 +5,14 @@ meta {
 }
 
 post {
-  url: http://localhost:3000/users/register
+  url: {{API_URL}}/users/register
   body: json
   auth: inherit
 }
 
-params:query {
-  : 
-}
-
 body:json {
   {
-    "username":"nej2c",
+    "username":"nejc",
     "password":"nejc",
     "email":"nejc@nejc.si"
   }

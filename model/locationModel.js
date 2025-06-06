@@ -6,8 +6,7 @@ export default class LocationModel {
         this.longitude = longitude;
         this.latitude = latitude;
     }
-
-    static async getAll() {
+     static async getAllWithHives() {
         try {
             const [results, fields] = await connection.execute(
                 `SELECT location.* , hive.location, hive.name
@@ -19,7 +18,16 @@ export default class LocationModel {
             throw err;S
         }
     }
-
+    static async getAll() {
+        try {
+            const [results, fields] = await connection.execute(
+                `SELECT * FROM location;`);
+            return results;
+        } catch (err) {
+            console.error('Error executing query:', err);
+            throw err;S
+        }
+    }
     
     static async getById(id) {
         try {

@@ -1,0 +1,11 @@
+meta {
+  name: get hives
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{API_URL}}/hive/getAll
+  body: none
+  auth: inherit
+}

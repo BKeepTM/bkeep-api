@@ -13,7 +13,17 @@ export default class HiveModel {
     this.id_user = id_user;
     }
 
-    static async getAll(userId) {
+    static async getAll() {
+        try {
+            const [results, fields] = await connection.execute('SELECT * FROM hive');
+            return results;
+        } catch (err) {
+            console.error('Error executing query:', err);
+            throw err;
+        }
+    }
+
+    static async getAllByUserId(userId) {
         try {
             const [results, fields] = await connection.execute('SELECT * FROM hive WHERE id_user = ?', [userId]);
             return results;
@@ -22,7 +32,6 @@ export default class HiveModel {
             throw err;
         }
     }
-
     static async getById(id, userId) {
         try {
             const [results, fields] = await connection.execute('SELECT * FROM hive WHERE id = ? AND id_user = ?', [id, userId]);

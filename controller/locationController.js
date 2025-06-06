@@ -16,6 +16,17 @@ const LocationController = {
     });
   },
 
+  listByHives:function(req,res){
+    LocationModel.getAllWithHives()
+    .then(location=>{
+      return res.status(200).json(location);
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).send("Napaka pri list location");
+    });
+  },
+
   list:function(req,res){
     LocationModel.getAll()
     .then(location=>{

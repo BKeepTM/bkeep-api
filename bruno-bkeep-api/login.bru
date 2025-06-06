@@ -5,7 +5,14 @@ meta {
 }
 
 post {
-  url: http://localhost:3000/users/login
-  body: none
+  url: {{API_URL}}/users/login
+  body: json
   auth: inherit
+}
+
+body:json {
+  {
+  "username":"nejc",
+  "password":"nejc"
+  }
 }

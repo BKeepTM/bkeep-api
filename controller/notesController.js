@@ -24,11 +24,22 @@ const NotesController = {
     }
   },
 
-  async list(req, res) {
+  async listByUser(req, res) {
+    const userId = req.auth.data.id;
+    try {
+      const notes = await NotesModel.getAllByUser(userId);
+      return res.status(200).json(notes);
+    } catch (err) {
+      console.error(err);
+      return res.status(500).send("Napaka pri pridobivanju notes.");
+    }
+  },
+  
+   async list(req, res) {
     const userId = req.auth.data.id;
 
     try {
-      const notes = await NotesModel.getAllByUser(userId);
+      const notes = await NotesModel.getAll();
       return res.status(200).json(notes);
     } catch (err) {
       console.error(err);

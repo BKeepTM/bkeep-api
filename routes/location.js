@@ -4,8 +4,9 @@ import LocationController from '../controller/locationController.js';
 const router = express.Router();
 
 /* GET */
-router.get('/location/list', LocationController.list);
+router.get('/location/list', LocationController.listByHives);
 router.get('/location/:id', LocationController.show);
+router.get('/location/getAll', LocationController.list);
 
 /* POST */
 router.post('/location', LocationController.create);

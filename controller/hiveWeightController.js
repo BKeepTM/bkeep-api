@@ -17,9 +17,9 @@ const HiveWeightController = {
     });
   },
 
-  list:function(req,res){
+  listByUser:function(req,res){
     const userId = req.auth.data.id
-    HiveWeightModel.getAll(userId)
+    HiveWeightModel.getAllByUserId(userId)
     .then(hiveWeight=>{
       return res.status(200).json(hiveWeight);
     })
@@ -28,7 +28,17 @@ const HiveWeightController = {
         res.status(500).send("Napaka pri list hiveWeight");
     });
   },
-
+  list: function(req,res){
+    const userId = req.auth.data.id
+    HiveWeightModel.getAll()
+    .then(hiveWeight=>{
+      return res.status(200).json(hiveWeight);
+    })
+    .catch(err => {
+        console.log(err);
+        res.status(500).send("Napaka pri list hiveWeight");
+    });
+  },
   show:function(req,res){
     const userId = req.auth.data.id
     const hiveWeightId = req.params.id;

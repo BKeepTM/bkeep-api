@@ -4,9 +4,9 @@ import NotesController from '../controller/notesController.js';
 const router = express.Router();
 
 /* GET */
-router.get('/notes/list', NotesController.list);
+router.get('/notes/list', NotesController.listByUser);
 router.get('/notes/:id', NotesController.show);
-
+router.get('/notes/getAll', NotesController.list);
 /* POST*/
 router.post('/notes', NotesController.create);
 router.post('/notes/update', NotesController.update);

@@ -1,0 +1,15 @@
+meta {
+  name: get notes for hive
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{API_URL}}/notes/:id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id: 
+}
