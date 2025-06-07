@@ -125,7 +125,29 @@ export default { // WIP
         const password = req.body.password ?? null;
         const mail = req.body.mail ?? null;
         const settings = req.body.settings ?? null;
-
+        if (password != null){
+            bcrypt.genSalt(10, function(err, salt) {
+                if (err){
+                    console.log(err)
+                    res.status(500).json("Error registering user")
+                }
+                bcrypt.hash(password, salt, function(err, hash) {
+                if (err){
+                    console.log(err)
+                    res.status(500).send("Error registering user")
+                }
+                const userInsert = new UserModel(null, username, password, email, {});
+                userInsert.password = hash;
+                userInsert.insert().then(() => {
+                    return res.status(200).json({message: "User registered succesfully"})
+                }).catch((err) => {
+                    console.log(err)
+                    return res.status(500).json({error: "user register failed"})
+                })
+                });
+            });
+        }
+         
         const user = new UserModel(userId,username,password,mail,settings);
         user.update()
             .then(user => {return res.status(200).json(user)})

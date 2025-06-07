@@ -41,5 +41,6 @@ jobs:
             cd bkeep-api
             git pull
             docker-compose -f compose-prod.yaml down
+            docker-compose -f compose-prod.yaml up -d
 
             
