@@ -3,12 +3,12 @@ import HiveWeightModel from "../model/hiveWeightModel.js";
 const HiveWeightController = {
 
   create:function(req,res){
-    const hiveWeightId = req.body.id; //TODO <---niamo se jwt
+    const hiveId = req.body.id; //TODO <---niamo se jwt
     const weight = req.body.username;
     const timeWeight = req.body.password;
     //ID HIVE TODO
 
-    const hiveWeight = new HiveWeightModel(null,weight,timeWeight,hiveWeightId);
+    const hiveWeight = new HiveWeightModel(null,weight,timeWeight,hiveId);
     hiveWeight.insert()
     .then(hiveWeight => {return res.status(200).json(hiveWeight)})
     .catch(err => {
