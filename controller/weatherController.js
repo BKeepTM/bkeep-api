@@ -1,10 +1,11 @@
-import WeatherModel from "../model/hiveModel.js";
+import WeatherModel from "../model/weatherModel.js";
+import LocationModel from "../model/locationModel.js";
 
 const HiveController = {
 
 create: async function (req, res) {
   try {
-    const { report_date, location_x,location_y, temperature, air_pressure, humidity, wind_speed,precipitiation } = req.body;
+    const { report_date, longitude, latitude, temperature, air_pressure, humidity, wind_speed,precipitiation } = req.body;
     const userId = req.auth.data.id;
 
     console.log("req body for create weather: ",req.body)
@@ -18,11 +19,11 @@ create: async function (req, res) {
     const weather = new WeatherModel(
       null,
       report_date,
-      location_x,
-      location_y, 
+      longitude,
+      latitude, 
       temperature,
       air_pressure,
-      humidity.id, 
+      humidity, 
       wind_speed,
       precipitiation
     );

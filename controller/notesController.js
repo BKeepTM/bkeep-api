@@ -12,8 +12,10 @@ const NotesController = {
     console.log("hiveId", hiveId);
 
     try {
-      const isAllowed = await NotesModel.hiveBelongsToUser(hiveId, userId);
-      if (!isAllowed) return res.status(403).send("Dostop do panja zavrnjen.");
+      /*const isAllowed = await NotesModel.hiveBelongsToUser(hiveId, userId);
+      if (!isAllowed) return res.status(403).send("Dostop do panja zavrnjen.");*/
+
+      // Ce zgornja vrstica ni zakometirana potem generiram samo za enega uporabnika oziroma njegove panje
 
       const note = new NotesModel(null, content, time, hiveId);
       const [result] = await note.insert();
@@ -36,9 +38,10 @@ const NotesController = {
   },
   
    async list(req, res) {
-    const userId = req.auth.data.id;
+    //const userId = req.auth.data.id;
 
     try {
+      console.log("Je v notes");
       const notes = await NotesModel.getAll();
       return res.status(200).json(notes);
     } catch (err) {

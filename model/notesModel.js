@@ -19,8 +19,9 @@ export default class NotesModel {
         return results;
     }
      static async getAll() { // getall metode za admin klice... prosim ne spreminjaj
-        try {
-            const [results, fields] = await connection.execute(`SELECT location FROM location`);
+        try {   
+            const [results, fields] = await connection.execute(`SELECT * FROM notes`);
+            console.log("Results from notes:", results);
             return results;
         } catch (err) {
             console.error('Error executing query:', err);
