@@ -1,19 +1,19 @@
 import connection from "../util/database.js";
 
 export default class NotificationMdel {
-    constructor(id, summary, description, href,user_id) {
+    constructor(id, summary, description, href,id_user) {
         this.id = id;
         this.summary = summary;
         this.description = description;
         this.href = href;
-        this.user_id = user_id;
+        this.id_user = id_user;
     }
 
     static async getAllByUserId(userId) {
         const [results] = await connection.execute(
             `SELECT notification.* 
              FROM notification
-             JOIN user ON user.id = notification.user_id 
+             JOIN user ON user.id = notification.id_user 
              WHERE notification.id_user = ?`,
             [userId]
         );
@@ -64,7 +64,7 @@ export default class NotificationMdel {
         return connection.execute(
             `DELETE notification 
              FROM notification 
-             WHERE notification.id = ? AND notification.user_id = ?`,
+             WHERE notification.id = ? AND notification.id_user = ?`,
             [notificationId, userId]
         );
     }

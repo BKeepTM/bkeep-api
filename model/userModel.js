@@ -33,7 +33,8 @@ export default class UserModel {
     static async getById(id) {
         try {
             const [results, fields] = await connection.execute('SELECT * FROM user WHERE id = ?', [id]);
-            return results;
+            console.log("results: ", results);
+            return new UserModel(results[0].id,results[0].username, results[0].password, results[0].mail, results[0].settings);
         } catch (err) {
             console.error('Error executing query:', err);
             throw err;
@@ -48,6 +49,7 @@ export default class UserModel {
     }
 
     update() {
+        console.log(this);
         return connection.execute(
             'UPDATE user SET username = ?, password = ?, mail = ?, settings = ? WHERE id = ?',
             [this.username, this.password, this.mail, JSON.stringify(this.settings), this.id]

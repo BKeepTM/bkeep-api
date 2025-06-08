@@ -120,41 +120,40 @@ export default { // WIP
             });
     },
     update: function(req,res){
-        const userId = req.params.id || req.body.id;
-        const username = req.body.username ?? null;
-        const password = req.body.password ?? null;
-        const mail = req.body.mail ?? null;
-        const settings = req.body.settings ?? null;
-        if (password != null){
-            bcrypt.genSalt(10, function(err, salt) {
+        
+        const userId = req.auth.data.id ?? null
+        UserModel.getById(userId).then(user => {
+            if (user.length < 1){
+                return res.status(404).send("uporabnik id fali");
+            }
+           user.username = req.body.username ?? user.username;
+           user.mail = req.body.mail ?? user.mail;
+           user.settings = req.body.settings ?? user.settings;
+           user.password = req.body.password ?? user.password;
+           console.log("user to update:",user)
+           bcrypt.genSalt(10, function(err, salt) {
                 if (err){
                     console.log(err)
-                    res.status(500).json("Error registering user")
+                    res.status(500).json("Error updating user")
                 }
-                bcrypt.hash(password, salt, function(err, hash) {
-                if (err){
-                    console.log(err)
-                    res.status(500).send("Error registering user")
-                }
-                const userInsert = new UserModel(null, username, password, email, {});
-                userInsert.password = hash;
-                userInsert.insert().then(() => {
-                    return res.status(200).json({message: "User registered succesfully"})
-                }).catch((err) => {
-                    console.log(err)
-                    return res.status(500).json({error: "user register failed"})
-                })
+                bcrypt.hash(user.password, salt, function(err, hash) {
+                    user.password = hash;
+                    if (err){
+                        console.log(err)
+                        res.status(500).send("Error updating user")
+                    }
+                    user.update()
+                        .then(user => {return res.status(200).json("Uspesno posodobljen user")})
+                        .catch(err => {
+                            console.error(err);
+                            return res.status(500).send("Napaka pri posodabljanju user");
+                        });
                 });
             });
-        }
-         
-        const user = new UserModel(userId,username,password,mail,settings);
-        user.update()
-            .then(user => {return res.status(200).json(user)})
-            .catch(err => {
-                console.error(err);
-                return res.status(500).send("Napaka pri posodabljanju user");
-            });
+        }).catch(err => {
+            console.error(err);
+            return res.status(500).send("Napaka pri posodabljanju user");
+        }); 
     },
     remove:function(req,res){
         const userId = req.params.id ?? req.body.id;

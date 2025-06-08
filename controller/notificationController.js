@@ -88,7 +88,7 @@ const NotificationController = {
 
   async remove(req, res) {
     const userId = req.auth.data.id;
-    const noteId =  req.body.id;
+    const noteId = req.body.id;
 
     console.log("UserId", userId);
     console.log("notesId",noteId);
@@ -104,4 +104,4 @@ const NotificationController = {
   }
 };
 
-export default NotesController;
+export default NotificationController;
