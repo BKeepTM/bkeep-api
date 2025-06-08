@@ -31,17 +31,6 @@ GRANT ALL PRIVILEGES ON `db_bkeep`.* TO 'bkeep'@'%';
 
 CREATE DATABASE IF NOT EXISTS `db_bkeep` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
 USE `db_bkeep`;
-
-  --
--- Database: `db_bkeep`
---
-
--- --------------------------------------------------------
-
---
--- Table structure for table `hive`
---
-
 CREATE TABLE `hive` (
   `id` int NOT NULL,
   `name` varchar(45) NOT NULL,
@@ -93,6 +82,18 @@ CREATE TABLE `notes` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `notification`
+--
+
+CREATE TABLE `notification` (
+  `id` int NOT NULL,
+  `summary` varchar(255) NOT NULL,
+  `description` varchar(1024) DEFAULT NULL,
+  `href` varchar(255) DEFAULT NULL,
+  `id_user` int NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
 -- Table structure for table `user`
 --
 
@@ -104,6 +105,8 @@ CREATE TABLE `user` (
   `settings` json DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+
+
 -- --------------------------------------------------------
 
 --
@@ -113,8 +116,7 @@ CREATE TABLE `user` (
 CREATE TABLE `weather` (
   `id` int NOT NULL,
   `report_date` date NOT NULL,
-  `location_x` float NOT NULL, -- tak pac je :)
-  `location_y` float NOT NULL,
+  `location` varchar(255) NOT NULL,
   `temperature` int NOT NULL,
   `air_pressure` int NOT NULL,
   `humidity` int NOT NULL,
@@ -153,6 +155,13 @@ ALTER TABLE `location`
 ALTER TABLE `notes`
   ADD PRIMARY KEY (`id`),
   ADD KEY `fk_notes_hive1` (`id_hive`);
+
+--
+-- Indexes for table `notification`
+--
+ALTER TABLE `notification`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `id_user` (`id_user`);
 
 --
 -- Indexes for table `user`
@@ -195,10 +204,16 @@ ALTER TABLE `notes`
   MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `notification`
+--
+ALTER TABLE `notification`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `weather`
@@ -228,6 +243,12 @@ ALTER TABLE `hive_weight`
 --
 ALTER TABLE `notes`
   ADD CONSTRAINT `fk_notes_hive1` FOREIGN KEY (`id_hive`) REFERENCES `hive` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `notification`
+--
+ALTER TABLE `notification`
+  ADD CONSTRAINT `notification_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `user` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
