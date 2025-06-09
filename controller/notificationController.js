@@ -101,6 +101,21 @@ const NotificationController = {
       console.error(err);
       return res.status(500).send("Napaka pri brisanju notes.");
     }
+  },
+  async getByHref(req,res){
+    const href = req.query.href
+    const userid = req.auth.data.id
+
+    console.log("href", href)
+    console.log("user", userid)
+
+    try {
+    const results = await NotificationModel.getByHref(userid, href);
+    return res.status(200).json(results);
+    } catch(err) {
+      console.log(err)
+      return res.status(500).json("fakju cigan");
+    }
   }
 };
 

@@ -6,16 +6,16 @@ export default class LocationModel {
         this.longitude = longitude;
         this.latitude = latitude;
     }
-     static async getAllWithHives() {
+     static async getAllWithHives(id) {
         try {
             const [results, fields] = await connection.execute(
                 `SELECT location.* , hive.location, hive.name
                  FROM location
-                 JOIN hive ON hive.id_location = location.id;`);
+                 JOIN hive ON hive.id_location = location.id WHERE hive.id_user = ?;`, [id]);
             return results;
         } catch (err) {
             console.error('Error executing query:', err);
-            throw err;S
+            throw err;
         }
     }
     static async getAll() {

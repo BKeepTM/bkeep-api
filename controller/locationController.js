@@ -1,3 +1,4 @@
+import { authPlugins } from "mysql2";
 import LocationModel from "../model/locationModel.js";
 
 const LocationController = {
@@ -17,7 +18,8 @@ const LocationController = {
   },
 
   listByHives:function(req,res){
-    LocationModel.getAllWithHives()
+    const userId = req.auth.data.id;
+    LocationModel.getAllWithHives(userId)
     .then(location=>{
       return res.status(200).json(location);
     })

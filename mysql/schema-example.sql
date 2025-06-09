@@ -90,7 +90,8 @@ CREATE TABLE `notification` (
   `summary` varchar(255) NOT NULL,
   `description` varchar(1024) DEFAULT NULL,
   `href` varchar(255) DEFAULT NULL,
-  `id_user` int NOT NULL
+  `severity` int NOT NULL DEFAULT 1,
+  `id_user` int NOT NULL,
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
