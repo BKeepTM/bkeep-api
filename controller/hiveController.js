@@ -46,6 +46,7 @@ createAdmin: async function (req, res) {
 
     console.log("name",name)
     console.log("type",type)
+    console.log("status",status)
     console.log("long",longitude)
     console.log("lat",latitude)
     console.log("location",location)

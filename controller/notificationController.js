@@ -7,7 +7,7 @@ import NotificationModel from "../model/notificationModel.js";
 const NotificationController = {
   async create(req, res) {
     const userId = req.auth.data.id;
-    const { summary, description, href } = req.body;
+    const { summary, description, href, severity,id_user } = req.body;
    
 
     console.log("User", userId);
@@ -16,9 +16,7 @@ const NotificationController = {
     console.log("href", href);
 
     try {
-      const isAllowed = await NotificationModel.notificationBelongsToUser(notificationId, userId);
-      if (!isAllowed) return res.status(403).send("Dostop do panja zavrnjen.");
-      const note = new NotificationModel(null, content, time, hiveId);
+      const note = new NotificationModel(null, summary, description, href, severity,id_user);
       const [result] = await note.insert();
       return res.status(201).json({ id: result.insertId });
     } catch (err) {
@@ -66,23 +64,16 @@ const NotificationController = {
 
   async update(req, res) {
     const userId = req.auth.data.id;
-    const noteId = req.params.id || req.body.id;
-    const { content, time, id_hive } = req.body;
+    const id = req.params.id || req.body.id;
+    const { summary, description, href,id_user } = req.body;
 
     try {
-      const existingNote = await NotificationModel.getByIdForUser(noteId, userId);
-      if (!existingNote) return res.status(403).send("Dostop zavrnjen ali notes ne obstaja.");
-
-      const hiveToUse = id_hive ?? existingNote.id_hive;
-      const isAllowed = await NotificationModel.hiveBelongsToUser(hiveToUse, userId);
-      if (!isAllowed) return res.status(403).send("Nimaš dostopa do novega panja.");
-
-      const note = new NotificationModel(noteId, content ?? existingNote.content, time ?? existingNote.time, hiveToUse);
+      const note = new NotificationModel(id, summary, description, href,id_user);
       await note.update();
       return res.status(200).json({ message: "Uspešno posodobljeno." });
     } catch (err) {
       console.error(err);
-      return res.status(500).send("Napaka pri posodobitvi notes.");
+      return res.status(500).send("Napaka pri posodobitvi notification.");
     }
   },
 

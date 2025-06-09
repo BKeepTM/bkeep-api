@@ -20,7 +20,7 @@ export default class NotesModel {
     }
      static async getAll() { // getall metode za admin klice... prosim ne spreminjaj
         try {
-            const [results, fields] = await connection.execute(`SELECT location FROM location`);
+            const [results, fields] = await connection.execute(`SELECT * FROM notes`);
             return results;
         } catch (err) {
             console.error('Error executing query:', err);
