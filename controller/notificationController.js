@@ -66,18 +66,12 @@ const NotificationController = {
 
   async update(req, res) {
     const userId = req.auth.data.id;
-    const noteId = req.params.id || req.body.id;
-    const { content, time, id_hive } = req.body;
+    const id = req.params.id || req.body.id;
+    const { summary, description, href,id_user, severity } = req.body;
 
     try {
-      const existingNote = await NotificationModel.getByIdForUser(noteId, userId);
-      if (!existingNote) return res.status(403).send("Dostop zavrnjen ali notes ne obstaja.");
-
-      const hiveToUse = id_hive ?? existingNote.id_hive;
-      const isAllowed = await NotificationModel.hiveBelongsToUser(hiveToUse, userId);
-      if (!isAllowed) return res.status(403).send("Nimaš dostopa do novega panja.");
-
-      const note = new NotificationModel(noteId, content ?? existingNote.content, time ?? existingNote.time, hiveToUse);
+      const note = new NotificationModel(id, summary, description, href,severity,id_user);
+      console.log(summary, description, href, severity, id_user, id);
       await note.update();
       return res.status(200).json({ message: "Uspešno posodobljeno." });
     } catch (err) {

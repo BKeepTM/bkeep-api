@@ -65,7 +65,7 @@ export default class NotificationMdel {
     update() {
         return connection.execute(
             `UPDATE notification SET summary = ?, description = ?, href = ?,severity = ?, id_user = ? WHERE id = ?`,
-            [this.summary, this.description, this.href, this.id_user, this.id]
+            [this.summary, this.description, this.href,this.severity, this.id_user, this.id]
         );
     }
 
