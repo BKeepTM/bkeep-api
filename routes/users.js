@@ -6,8 +6,8 @@ import UserModel from "../model/userModel.js";
 const router = express.Router();
 /* GET*/
 //router.get('/users/list', UserController.list);
-router.get('/users/:id', UserController.show);
 router.get('/users/getAll', UserController.list);
+router.get('/users/:id', UserController.show);
 /* POST*/
 router.post('/users/update', UserController.update);
 router.post('/users/remove', UserController.remove);

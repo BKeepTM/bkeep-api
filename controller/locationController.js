@@ -50,19 +50,24 @@ const LocationController = {
     });
   },
 
-  update: function(req,res){
+  update: function(req, res) {
     const locationId = req.params.id || req.body.id;
     const longitude = req.body.longitude ?? null;
     const latitude = req.body.latitude ?? null;
 
-    const location = new LocationModel(locationId,longitude,latitude);
+    const location = new LocationModel(locationId, longitude, latitude);
     location.update()
-    .then(location => {return res.status(200).json(location)})
-    .catch(err => {
-      console.error(err);
-      return res.status(500).send("Napaka pri posodabljanju location");
-    });
-  },
+        .then(result => {
+            return res.status(200).json({
+                message: "Location updated",
+                result: result
+            });
+        })
+        .catch(err => {
+            console.error(err);
+            return res.status(500).send("Napaka pri posodabljanju location");
+        });
+},
 
   remove:function(req,res){
     const locationId = req.params.id ?? req.body.id;

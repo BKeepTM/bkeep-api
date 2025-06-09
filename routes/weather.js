@@ -5,8 +5,8 @@ import WeatherController from '../controller/weatherController.js';
 const router = express.Router();
 /* GET*/
 //router.get('/users/list', WeatherController.create);
-router.get('/weather/:id', WeatherController.show);
 router.get('/weather/getAll', WeatherController.list);
+router.get('/weather/:id', WeatherController.show);
 /* POST*/
 router.post('/weather/update', WeatherController.update);
 router.post('/weather/remove', WeatherController.remove);

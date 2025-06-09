@@ -70,4 +70,8 @@ export default class NotesModel {
             [noteId, userId]
         );
     }
+
+    static async deleteAdmin(noteId) {
+        return connection.execute('DELETE FROM notes WHERE id = ?', [noteId]);
+    }
 }

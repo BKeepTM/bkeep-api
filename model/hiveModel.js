@@ -60,6 +60,10 @@ export default class HiveModel {
         return connection.execute('DELETE FROM hive WHERE id = ? AND id_user = ?', [id,userId]);
     }
 
+    static deleteByIdAdmin(id) {
+        return connection.execute('DELETE FROM hive WHERE id = ?', [id]);
+    }
+
     delete() {
         return connection.execute(
           'DELETE FROM hive WHERE name = ? AND location = ? AND type = ? AND status = ? AND id_location = ? AND id_user = ?',

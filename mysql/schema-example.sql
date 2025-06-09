@@ -116,12 +116,13 @@ CREATE TABLE `user` (
 CREATE TABLE `weather` (
   `id` int NOT NULL,
   `report_date` date NOT NULL,
-  `location` varchar(255) NOT NULL,
-  `temperature` int NOT NULL,
-  `air_pressure` int NOT NULL,
-  `humidity` int NOT NULL,
-  `wind_speed` int NOT NULL,
-  `precipitation` int NOT NULL
+  `location_x` float NOT NULL, -- tak pac je :)
+  `location_y` float NOT NULL,
+  `temperature` int NULL,
+  `air_pressure` int NULL,
+  `humidity` int NULL,
+  `wind_speed` int NULL,
+  `precipitation` int NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --

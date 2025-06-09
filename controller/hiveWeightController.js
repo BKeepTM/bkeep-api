@@ -17,6 +17,20 @@ const HiveWeightController = {
     });
   },
 
+  createAdmin:function(req,res){
+    const hiveId = req.body.hiveId;
+    const weight = req.body.weight;
+    const timeWeight = req.body.timeWeight;
+
+    const hiveWeight = new HiveWeightModel(null,weight,timeWeight,hiveId);
+    hiveWeight.insert()
+    .then(hiveWeight => {return res.status(200).json(hiveWeight)})
+    .catch(err => {
+        console.log(err);
+        res.status(500).send("Napaka pri ustvarjanju hiveWeight");
+    });
+  },
+
   listByUser:function(req,res){
     const userId = req.auth.data.id
     HiveWeightModel.getAllByUserId(userId)

@@ -96,7 +96,7 @@ export default { // WIP
 
 
     list:function(req,res){
-        UserModel.getAllByUserId()
+        UserModel.getAll()
         .then(user=>{
           return res.status(200).json(user);
         })
