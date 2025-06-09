@@ -7,7 +7,7 @@ import NotificationModel from "../model/notificationModel.js";
 const NotificationController = {
   async create(req, res) {
     const userId = req.auth.data.id;
-    const { summary, description, href, severity,id_user } = req.body;
+    const { summary, description, href } = req.body;
    
 
     console.log("User", userId);
@@ -16,7 +16,9 @@ const NotificationController = {
     console.log("href", href);
 
     try {
-      const note = new NotificationModel(null, summary, description, href, severity,id_user);
+      const isAllowed = await NotificationModel.notificationBelongsToUser(notificationId, userId);
+      if (!isAllowed) return res.status(403).send("Dostop do panja zavrnjen.");
+      const note = new NotificationModel(null, content, time, hiveId);
       const [result] = await note.insert();
       return res.status(201).json({ id: result.insertId });
     } catch (err) {
@@ -64,16 +66,23 @@ const NotificationController = {
 
   async update(req, res) {
     const userId = req.auth.data.id;
-    const id = req.params.id || req.body.id;
-    const { summary, description, href,id_user } = req.body;
+    const noteId = req.params.id || req.body.id;
+    const { content, time, id_hive } = req.body;
 
     try {
-      const note = new NotificationModel(id, summary, description, href,id_user);
+      const existingNote = await NotificationModel.getByIdForUser(noteId, userId);
+      if (!existingNote) return res.status(403).send("Dostop zavrnjen ali notes ne obstaja.");
+
+      const hiveToUse = id_hive ?? existingNote.id_hive;
+      const isAllowed = await NotificationModel.hiveBelongsToUser(hiveToUse, userId);
+      if (!isAllowed) return res.status(403).send("Nimaš dostopa do novega panja.");
+
+      const note = new NotificationModel(noteId, content ?? existingNote.content, time ?? existingNote.time, hiveToUse);
       await note.update();
       return res.status(200).json({ message: "Uspešno posodobljeno." });
     } catch (err) {
       console.error(err);
-      return res.status(500).send("Napaka pri posodobitvi notification.");
+      return res.status(500).send("Napaka pri posodobitvi notes.");
     }
   },
 
@@ -83,7 +92,7 @@ const NotificationController = {
 
     console.log("UserId", userId);
     console.log("notesId",noteId);
-
+    
     try {
       const [result] = await NotificationModel.deleteByIdForUser(noteId, userId);
       if (result.affectedRows === 0) return res.status(403).send("Ni dostopa ali notes ne obstaja.");
