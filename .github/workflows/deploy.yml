@@ -38,8 +38,9 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             docker image pull bkeepapi/bkeep-api:$VER
-            cd bkeep-api
+            cd ~/bkeep-api
             git pull
             docker-compose -f compose-prod.yaml down
+            docker-compose -f compose-prod.yaml up -d
 
             

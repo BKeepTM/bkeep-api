@@ -40,6 +40,43 @@ create: async function (req, res) {
 },
 
 
+createAdmin: async function (req, res) {
+  try {
+    const { name, type, status, longitude, latitude, location, userId } = req.body;
+
+    console.log("name",name)
+    console.log("type",type)
+    console.log("status",status)
+    console.log("long",longitude)
+    console.log("lat",latitude)
+    console.log("location",location)
+    console.log("user",userId)
+
+    const locationObj = new LocationModel(null, longitude, latitude);
+    const insertedLocation = await locationObj.insert(); 
+
+    console.log("location id:", insertedLocation)
+
+    const hive = new HiveModel(
+      null,
+      name,
+      location,          
+      type,
+      status,
+      insertedLocation.id, 
+      userId
+    );
+
+    const insertedHive = await hive.insert();
+    return res.status(200).json(insertedHive);
+
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Napaka pri ustvarjanju panja");
+  }
+},
+
+
   listByUser:function(req,res){
     const userId = req.auth.data.id
     HiveModel.getAllByUserId(userId)
@@ -101,6 +138,21 @@ create: async function (req, res) {
     console.log("userId", userId)
 
     HiveModel.deleteById(hiveId, userId)
+    .then(()=> {return res.status(200).send("Uspesno zbrisan panj")})
+    .catch(err => {
+      console.error(err);
+      return res.status(500).send("Napaka pri brisanju hive");
+    });
+  },
+
+  removeAdmin:function(req,res){
+    const hiveId = req.params.id ?? req.body.id;  
+    const userId = req.auth.data.id
+
+    console.log("hiveid", hiveId)
+    console.log("userId", userId)
+
+    HiveModel.deleteByIdAdmin(hiveId)
     .then(()=> {return res.status(200).send("Uspesno zbrisan panj")})
     .catch(err => {
       console.error(err);

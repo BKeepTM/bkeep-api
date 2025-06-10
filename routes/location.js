@@ -5,8 +5,8 @@ const router = express.Router();
 
 /* GET */
 router.get('/location/list', LocationController.listByHives);
-router.get('/location/:id', LocationController.show);
 router.get('/location/getAll', LocationController.list);
+router.get('/location/:id', LocationController.show);
 
 /* POST */
 router.post('/location', LocationController.create);

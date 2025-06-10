@@ -1,0 +1,21 @@
+meta {
+  name: update user
+  type: http
+  seq: 8
+}
+
+post {
+  url: {API_URL}/users/update
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "password":"troll"
+  }
+}
+
+body:multipart-form {
+  password: nejc1
+}

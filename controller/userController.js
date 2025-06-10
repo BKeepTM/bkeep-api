@@ -96,7 +96,7 @@ export default { // WIP
 
 
     list:function(req,res){
-        UserModel.getAllByUserId()
+        UserModel.getAll()
         .then(user=>{
           return res.status(200).json(user);
         })
@@ -120,19 +120,40 @@ export default { // WIP
             });
     },
     update: function(req,res){
-        const userId = req.params.id || req.body.id;
-        const username = req.body.username ?? null;
-        const password = req.body.password ?? null;
-        const mail = req.body.mail ?? null;
-        const settings = req.body.settings ?? null;
-
-        const user = new UserModel(userId,username,password,mail,settings);
-        user.update()
-            .then(user => {return res.status(200).json(user)})
-            .catch(err => {
-                console.error(err);
-                return res.status(500).send("Napaka pri posodabljanju user");
+        
+        const userId = req.auth.data.id ?? null
+        UserModel.getById(userId).then(user => {
+            if (user.length < 1){
+                return res.status(404).send("uporabnik id fali");
+            }
+           user.username = req.body.username ?? user.username;
+           user.mail = req.body.mail ?? user.mail;
+           user.settings = req.body.settings ?? user.settings;
+           user.password = req.body.password ?? user.password;
+           console.log("user to update:",user)
+           bcrypt.genSalt(10, function(err, salt) {
+                if (err){
+                    console.log(err)
+                    res.status(500).json("Error updating user")
+                }
+                bcrypt.hash(user.password, salt, function(err, hash) {
+                    user.password = hash;
+                    if (err){
+                        console.log(err)
+                        res.status(500).send("Error updating user")
+                    }
+                    user.update()
+                        .then(user => {return res.status(200).json("Uspesno posodobljen user")})
+                        .catch(err => {
+                            console.error(err);
+                            return res.status(500).send("Napaka pri posodabljanju user");
+                        });
+                });
             });
+        }).catch(err => {
+            console.error(err);
+            return res.status(500).send("Napaka pri posodabljanju user");
+        }); 
     },
     remove:function(req,res){
         const userId = req.params.id ?? req.body.id;

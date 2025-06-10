@@ -15,6 +15,28 @@ const NotesController = {
       const isAllowed = await NotesModel.hiveBelongsToUser(hiveId, userId);
       if (!isAllowed) return res.status(403).send("Dostop do panja zavrnjen.");
 
+      // Ce zgornja vrstica ni zakometirana potem generiram samo za enega uporabnika oziroma njegove panje
+
+      const note = new NotesModel(null, content, time, hiveId);
+      const [result] = await note.insert();
+      return res.status(201).json({ id: result.insertId });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).send("Napaka pri ustvarjanju notes.");
+    }
+  },
+
+  async createAdmin(req, res) {
+    const userId = req.auth.data.id;
+    const { content, time } = req.body;
+    const hiveId = req.body.hiveId;
+
+    console.log("User", userId);
+    console.log("content", content);
+    console.log("time", time);
+    console.log("hiveId", hiveId);
+
+    try {
       const note = new NotesModel(null, content, time, hiveId);
       const [result] = await note.insert();
       return res.status(201).json({ id: result.insertId });
@@ -92,6 +114,23 @@ const NotesController = {
 
     try {
       const [result] = await NotesModel.deleteByIdForUser(noteId, userId);
+      if (result.affectedRows === 0) return res.status(403).send("Ni dostopa ali notes ne obstaja.");
+      return res.status(200).send("Uspešno zbrisano.");
+    } catch (err) {
+      console.error(err);
+      return res.status(500).send("Napaka pri brisanju notes.");
+    }
+  },
+
+  async removeAdmin(req, res) {
+    const userId = req.auth.data.id;
+    const noteId =  req.body.id;
+
+    console.log("UserId", userId);
+    console.log("notesId",noteId);
+
+    try {
+      const [result] = await NotesModel.deleteAdmin(noteId);
       if (result.affectedRows === 0) return res.status(403).send("Ni dostopa ali notes ne obstaja.");
       return res.status(200).send("Uspešno zbrisano.");
     } catch (err) {

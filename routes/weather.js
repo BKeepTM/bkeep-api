@@ -1,17 +1,16 @@
 
 import express from 'express';
-import UserController from '../controller/userController.js';
-import UserModel from "../model/userModel.js";
+import WeatherController from '../controller/weatherController.js';
 
 const router = express.Router();
 /* GET*/
-//router.get('/users/list', UserController.list);
-router.get('/users/:id', UserController.show);
-router.get('/users/getAll', UserController.list);
+//router.get('/users/list', WeatherController.create);
+router.get('/weather/getAll', WeatherController.list);
+router.get('/weather/:id', WeatherController.show);
 /* POST*/
-router.post('/users/update', UserController.update);
-router.post('/users/remove', UserController.remove);
-router.post('/users/login',UserController.login);
-router.post('/users/register',UserController.register);
+router.post('/weather/update', WeatherController.update);
+router.post('/weather/remove', WeatherController.remove);
+router.post('/weather', WeatherController.create);
+
 
 export default router;
