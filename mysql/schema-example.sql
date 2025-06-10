@@ -28,9 +28,16 @@ SET time_zone = "+00:00";
 --
 CREATE USER 'bkeep'@'%' IDENTIFIED BY 'bkeep';
 GRANT ALL PRIVILEGES ON `db_bkeep`.* TO 'bkeep'@'%';
+--
+-- Database: `db_bkeep`
+--
 
-CREATE DATABASE IF NOT EXISTS `db_bkeep` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
-USE `db_bkeep`;
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `hive`
+--
+
 CREATE TABLE `hive` (
   `id` int NOT NULL,
   `name` varchar(45) NOT NULL,
@@ -53,6 +60,67 @@ CREATE TABLE `hive_weight` (
   `time_weight` datetime NOT NULL,
   `id_hive` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Triggers `hive_weight`
+--
+DELIMITER $$
+CREATE TRIGGER `after_hive_weight_insert_check_loss` AFTER INSERT ON `hive_weight` FOR EACH ROW BEGIN
+    DECLARE consecutive_days_threshold INT DEFAULT 3;
+
+    DECLARE weight_today FLOAT;
+    DECLARE weight_yesterday FLOAT;
+    DECLARE weight_day_before FLOAT;
+    DECLARE hive_owner_id INT;
+    DECLARE hive_name_var VARCHAR(45);
+    DECLARE summary_text VARCHAR(255);
+    DECLARE href_link VARCHAR(255);
+
+    SET weight_today = NEW.weight;
+
+    SELECT MAX(weight) INTO weight_yesterday
+    FROM hive_weight
+    WHERE id_hive = NEW.id_hive
+      AND DATE(time_weight) = DATE_SUB(DATE(NEW.time_weight), INTERVAL 1 DAY);
+
+    SELECT MAX(weight) INTO weight_day_before
+    FROM hive_weight
+    WHERE id_hive = NEW.id_hive
+      AND DATE(time_weight) = DATE_SUB(DATE(NEW.time_weight), INTERVAL 2 DAY);
+
+    IF weight_yesterday IS NOT NULL AND
+       weight_day_before IS NOT NULL AND
+       weight_today < weight_yesterday AND
+       weight_yesterday < weight_day_before
+    THEN
+        SELECT name, id_user INTO hive_name_var, hive_owner_id
+        FROM hive
+        WHERE id = NEW.id_hive;
+
+        SET summary_text = CONCAT('Stalna zguba teže na panju '', hive_name_var, ''');
+        SET href_link = CONCAT('/hives/', NEW.id_hive);
+
+        IF NOT EXISTS (
+            SELECT 1 FROM notification
+            WHERE id_user = hive_owner_id
+              AND summary = summary_text
+        ) THEN
+            INSERT INTO notification (summary, description, href, severity, id_user)
+            VALUES (
+                summary_text,
+                CONCAT('Panj '', hive_name_var, '' je stalno zgublal težo za ', consecutive_days_threshold, ' zaporednih dni. ',
+                       'Trenutna teža: ', ROUND(weight_today, 2), ' kg. ',
+                       'Prejšne teže : ', ROUND(weight_yesterday, 2), ' kg, ', ROUND(weight_day_before, 2), ' kg. ',
+                       'To je morda posledica roja al slabe paše'),
+                href_link,
+                3,
+                hive_owner_id
+            );
+        END IF;
+    END IF;
+END
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -90,9 +158,11 @@ CREATE TABLE `notification` (
   `summary` varchar(255) NOT NULL,
   `description` varchar(1024) DEFAULT NULL,
   `href` varchar(255) DEFAULT NULL,
-  `severity` int NOT NULL DEFAULT 1,
+  `severity` int NOT NULL DEFAULT '1',
   `id_user` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
 
 --
 -- Table structure for table `user`
@@ -106,8 +176,6 @@ CREATE TABLE `user` (
   `settings` json DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-
-
 -- --------------------------------------------------------
 
 --
@@ -117,14 +185,105 @@ CREATE TABLE `user` (
 CREATE TABLE `weather` (
   `id` int NOT NULL,
   `report_date` date NOT NULL,
-  `location_x` float NOT NULL, -- tak pac je :)
+  `location_x` float NOT NULL,
   `location_y` float NOT NULL,
-  `temperature` int NULL,
-  `air_pressure` int NULL,
-  `humidity` int NULL,
-  `wind_speed` int NULL,
-  `precipitation` int NULL
+  `temperature` int DEFAULT NULL,
+  `air_pressure` int DEFAULT NULL,
+  `humidity` int DEFAULT NULL,
+  `wind_speed` int DEFAULT NULL,
+  `precipitation` int DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Triggers `weather`
+--
+DELIMITER $$
+CREATE TRIGGER `after_weather_insert_create_notification` AFTER INSERT ON `weather` FOR EACH ROW BEGIN
+
+    DECLARE distance_threshold INT;
+    SET distance_threshold = 20000;
+
+    IF NEW.temperature IS NOT NULL AND NEW.temperature < 10 THEN
+        INSERT INTO notification (summary, description, href, severity, id_user)
+        SELECT
+            'Low Temperature Alert' AS summary,
+            CONCAT('Napovedana temperatura ', NEW.temperature, 'Â°C blizu panja '', h.name, ''. Preveri izolacija panja') AS description,
+            CONCAT('/hives/', h.id) AS href,
+            2 AS severity, 
+            h.id_user
+        FROM
+            hive h
+        JOIN
+            location l ON h.id_location = l.id
+        WHERE
+         
+            ST_Distance_Sphere(
+                POINT(NEW.location_x, NEW.location_y),
+                POINT(l.longitude, l.latitude)
+            ) <= distance_threshold;
+    END IF;
+
+    IF NEW.temperature IS NOT NULL AND NEW.temperature > 35 THEN
+        INSERT INTO notification (summary, description, href, severity, id_user)
+        SELECT
+            'Opozorilo: Visoka temperatura' AS summary,
+            CONCAT('Napoved temperature ', NEW.temperature, 'Â°C blizu panja '', h.name, ''. Zagotovi dovolj vode Äebelam.') AS description,
+            CONCAT('/hives/', h.id) AS href,
+            2 AS severity, 
+            h.id_user
+        FROM
+            hive h
+        JOIN
+            location l ON h.id_location = l.id
+        WHERE
+            ST_Distance_Sphere(
+                POINT(NEW.location_x, NEW.location_y),
+                POINT(l.longitude, l.latitude)
+            ) <= distance_threshold;
+    END IF;
+
+
+    IF NEW.wind_speed IS NOT NULL AND NEW.wind_speed > 35 THEN
+        INSERT INTO notification (summary, description, href, severity, id_user)
+        SELECT
+            'Opozorilo: MoÄni veter ' AS summary,
+            CONCAT('Veter s hitrostjo', NEW.wind_speed, ' km/h je napovoden blizu panja '', h.name, ''. To lahko vpliva na paÅ¡o.') AS description,
+            CONCAT('/hives/', h.id) AS href,
+            2 AS severity,
+            h.id_user
+        FROM
+            hive h
+        JOIN
+            location l ON h.id_location = l.id
+        WHERE
+            ST_Distance_Sphere(
+                POINT(NEW.location_x, NEW.location_y),
+                POINT(l.longitude, l.latitude)
+            ) <= distance_threshold;
+    END IF;
+
+    IF NEW.precipitation IS NOT NULL AND NEW.precipitation > 5 THEN
+        INSERT INTO notification (summary, description, href, severity, id_user)
+        SELECT
+            'Opozorilo: DeÅ¾' AS summary,
+            CONCAT('Veliko deÅ¾a (', NEW.precipitation, ' mm/h) je napovedano blizu panja '', h.name, ''. ÄŒebela najverjetne nebodo letele :) .') AS description,
+            CONCAT('/hives/', h.id) AS href,
+            1 AS severity, 
+            h.id_user
+        FROM
+            hive h
+        JOIN
+            location l ON h.id_location = l.id
+        WHERE
+            ST_Distance_Sphere(
+                POINT(NEW.location_x, NEW.location_y),
+                POINT(l.longitude, l.latitude)
+            ) <= distance_threshold;
+    END IF;
+
+END
+$$
+DELIMITER ;
 
 --
 -- Indexes for dumped tables

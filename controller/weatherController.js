@@ -1,4 +1,5 @@
-import WeatherModel from "../model/hiveModel.js";
+import WeatherModel from "../model/weatherModel.js";
+import LocationModel from "../model/locationModel.js";
 
 const HiveController = {
 
@@ -6,10 +7,11 @@ create: async function (req, res) {
   try {
     const { report_date, location_x,location_y, temperature, air_pressure, humidity, wind_speed,precipitiation } = req.body;
     const userId = req.auth.data.id;
+    const longitude = location_x;
+    const latitude = location_y;
 
     console.log("req body for create weather: ",req.body)
   
-
     const locationObj = new LocationModel(null, longitude, latitude);
     const insertedLocation = await locationObj.insert(); 
 
@@ -22,7 +24,7 @@ create: async function (req, res) {
       location_y, 
       temperature,
       air_pressure,
-      humidity.id, 
+      humidity, 
       wind_speed,
       precipitiation
     );

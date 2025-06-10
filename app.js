@@ -12,6 +12,7 @@ import locationRouter from './routes/location.js';
 import notesRouter from './routes/notes.js';
 import hiveWeightRouter from './routes/hiveWeight.js';
 import notificationRouter from './routes/notification.js';
+import whetherRouter from './routes/weather.js';
 
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -54,6 +55,7 @@ app.use('/', locationRouter);
 app.use('/', notesRouter);
 app.use('/',hiveWeightRouter);
 app.use('/',notificationRouter)
+app.use('/',whetherRouter)
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));

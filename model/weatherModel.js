@@ -1,3 +1,5 @@
+import connection from "../util/database.js";
+
 export default class WeatherModel {
     constructor(id,report_date,location_x,location_y,temperature,air_pressure,humidity,wind_speed,precipitation) {
     this.id = id;
