@@ -6,19 +6,15 @@ import NotificationModel from "../model/notificationModel.js";
     //     this.user_id = user_id;
 const NotificationController = {
   async create(req, res) {
-    const userId = req.auth.data.id;
-    const { summary, description, href } = req.body;
-   
+    const { summary, description, href, severity, id_user } = req.body;
 
-    console.log("User", userId);
+    console.log("User", id_user);
     console.log("summary", summary);
     console.log("description", description);
     console.log("href", href);
 
     try {
-      const isAllowed = await NotificationModel.notificationBelongsToUser(notificationId, userId);
-      if (!isAllowed) return res.status(403).send("Dostop do panja zavrnjen.");
-      const note = new NotificationModel(null, content, time, hiveId);
+      const note = new NotificationModel(null, summary, description, href,severity ,id_user);
       const [result] = await note.insert();
       return res.status(201).json({ id: result.insertId });
     } catch (err) {
