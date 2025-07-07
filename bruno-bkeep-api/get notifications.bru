@@ -1,0 +1,11 @@
+meta {
+  name: get notifications
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{API_URL}}/notification/list
+  body: none
+  auth: inherit
+}
