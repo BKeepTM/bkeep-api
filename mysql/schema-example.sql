@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.2.2
 -- https://www.phpmyadmin.net/
 --
--- Gostitelj: express_mysql:3306
--- Čas nastanka: 16. maj 2025 ob 16.12
--- Različica strežnika: 9.1.0
--- Različica PHP: 8.2.8
+-- Host: express_mysql:3306
+-- Generation Time: Nov 10, 2025 at 08:55 PM
+-- Server version: 9.1.0
+-- PHP Version: 8.2.27
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,19 +18,21 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Zbirka podatkov: `db_bkeep`
+-- Database: `db_bkeep`
 --
 
 -- --------------------------------------------------------
 
 --
--- Struktura tabele `hive`
+-- Table structure for table `esp_secret`
 --
-CREATE USER 'bkeep'@'%' IDENTIFIED BY 'bkeep';
-GRANT ALL PRIVILEGES ON `db_bkeep`.* TO 'bkeep'@'%';
---
--- Database: `db_bkeep`
---
+
+CREATE TABLE `esp_secret` (
+  `id` int NOT NULL,
+  `secret` char(32) DEFAULT NULL,
+  `id_hive` int NOT NULL,
+  `date_registered` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -97,18 +99,19 @@ CREATE TRIGGER `after_hive_weight_insert_check_loss` AFTER INSERT ON `hive_weigh
         FROM hive
         WHERE id = NEW.id_hive;
 
-        SET summary_text = CONCAT('Stalna zguba teže na panju '', hive_name_var, ''');
+        SET summary_text = CONCAT('Stalna zguba teže na panju ', hive_name_var, '');
         SET href_link = CONCAT('/hives/', NEW.id_hive);
 
         IF NOT EXISTS (
             SELECT 1 FROM notification
             WHERE id_user = hive_owner_id
               AND summary = summary_text
+              AND DATE(time_weight) = DATE(NEW.time_weight)
         ) THEN
             INSERT INTO notification (summary, description, href, severity, id_user)
             VALUES (
                 summary_text,
-                CONCAT('Panj '', hive_name_var, '' je stalno zgublal težo za ', consecutive_days_threshold, ' zaporednih dni. ',
+                CONCAT('Panj ', hive_name_var, ' je stalno zgublal težo za ', consecutive_days_threshold, ' zaporednih dni. ',
                        'Trenutna teža: ', ROUND(weight_today, 2), ' kg. ',
                        'Prejšne teže : ', ROUND(weight_yesterday, 2), ' kg, ', ROUND(weight_day_before, 2), ' kg. ',
                        'To je morda posledica roja al slabe paše'),
@@ -133,7 +136,6 @@ CREATE TABLE `location` (
   `longitude` float NOT NULL,
   `latitude` float NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
 -- --------------------------------------------------------
 
 --
@@ -207,7 +209,7 @@ CREATE TRIGGER `after_weather_insert_create_notification` AFTER INSERT ON `weath
         INSERT INTO notification (summary, description, href, severity, id_user)
         SELECT
             'Low Temperature Alert' AS summary,
-            CONCAT('Napovedana temperatura ', NEW.temperature, 'Â°C blizu panja '', h.name, ''. Preveri izolacija panja') AS description,
+            CONCAT('Napovedana temperatura ', NEW.temperature, 'Â°C blizu panja ', h.name, '. Preveri izolacija panja') AS description,
             CONCAT('/hives/', h.id) AS href,
             2 AS severity, 
             h.id_user
@@ -227,7 +229,7 @@ CREATE TRIGGER `after_weather_insert_create_notification` AFTER INSERT ON `weath
         INSERT INTO notification (summary, description, href, severity, id_user)
         SELECT
             'Opozorilo: Visoka temperatura' AS summary,
-            CONCAT('Napoved temperature ', NEW.temperature, 'Â°C blizu panja '', h.name, ''. Zagotovi dovolj vode Äebelam.') AS description,
+            CONCAT('Napoved temperature ', NEW.temperature, 'Â°C blizu panja ', h.name, '. Zagotovi dovolj vode Äebelam.') AS description,
             CONCAT('/hives/', h.id) AS href,
             2 AS severity, 
             h.id_user
@@ -247,7 +249,7 @@ CREATE TRIGGER `after_weather_insert_create_notification` AFTER INSERT ON `weath
         INSERT INTO notification (summary, description, href, severity, id_user)
         SELECT
             'Opozorilo: MoÄni veter ' AS summary,
-            CONCAT('Veter s hitrostjo', NEW.wind_speed, ' km/h je napovoden blizu panja '', h.name, ''. To lahko vpliva na paÅ¡o.') AS description,
+            CONCAT('Veter s hitrostjo', NEW.wind_speed, ' km/h je napovoden blizu panja ', h.name, '. To lahko vpliva na paÅ¡o.') AS description,
             CONCAT('/hives/', h.id) AS href,
             2 AS severity,
             h.id_user
@@ -266,7 +268,7 @@ CREATE TRIGGER `after_weather_insert_create_notification` AFTER INSERT ON `weath
         INSERT INTO notification (summary, description, href, severity, id_user)
         SELECT
             'Opozorilo: DeÅ¾' AS summary,
-            CONCAT('Veliko deÅ¾a (', NEW.precipitation, ' mm/h) je napovedano blizu panja '', h.name, ''. ÄŒebela najverjetne nebodo letele :) .') AS description,
+            CONCAT('Veliko deÅ¾a (', NEW.precipitation, ' mm/h) je napovedano blizu panja ', h.name, '. ÄŒebela najverjetne nebodo letele :) .') AS description,
             CONCAT('/hives/', h.id) AS href,
             1 AS severity, 
             h.id_user
@@ -288,6 +290,13 @@ DELIMITER ;
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `esp_secret`
+--
+ALTER TABLE `esp_secret`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `id_hive` (`id_hive`);
 
 --
 -- Indexes for table `hive`
@@ -344,7 +353,7 @@ ALTER TABLE `weather`
 -- AUTO_INCREMENT for table `hive`
 --
 ALTER TABLE `hive`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `hive_weight`
@@ -356,7 +365,7 @@ ALTER TABLE `hive_weight`
 -- AUTO_INCREMENT for table `location`
 --
 ALTER TABLE `location`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `notes`
@@ -374,7 +383,7 @@ ALTER TABLE `notification`
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `weather`
@@ -385,6 +394,12 @@ ALTER TABLE `weather`
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `esp_secret`
+--
+ALTER TABLE `esp_secret`
+  ADD CONSTRAINT `esp_secret_ibfk_1` FOREIGN KEY (`id_hive`) REFERENCES `hive` (`id`);
 
 --
 -- Constraints for table `hive`
