@@ -88,6 +88,18 @@ const HiveWeightController = {
         console.error(err);
         return res.status(500).send("Napaka pri brisanju hiveWeight");
       });
+  },
+
+  listByDate:function(req,res){
+    const time_weight = req.body.time_weight;
+    HiveWeightModel.getAllByDate(time_weight)
+    .then(hiveWeight=>{
+      return res.status(200).json(hiveWeight);
+    })
+    .catch(err => {
+        console.error(err);
+        return res.status(500).send("Napaka pri listByDate");
+      });
   }
 
 }
