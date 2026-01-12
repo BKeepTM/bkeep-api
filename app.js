@@ -24,7 +24,7 @@ import cors from "cors";
 var app = express();
 
 app.use(cors({
-  origin: 'http://localhost:5173', 
+  origin: '*',
   credentials: true,               
 }));
 
@@ -45,7 +45,7 @@ app.use(
   expressjwt({
     secret: process.env.JWT_SECRET,
     algorithms: [process.env.JWT_ALGORITHM],
-  }).unless({ path: ["/users/login", "/users/register"] })
+  }).unless({ path: ["/users/login", "/users/register", "/hiveWeight"] })
 )
 
 app.use('/', indexRouter);

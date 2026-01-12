@@ -1,27 +1,16 @@
 import HiveWeightModel from "../model/hiveWeightModel.js";
 
 const HiveWeightController = {
-  create: function (req, res) {
-    const { createHmac } = require("node:crypto");
-    const hmac = createHmac('sha256', '');
-    const hiveWeightId = req.body.id; //TODO <---niamo se jwt
-    const weight = req.body.username;
-    const timeWeight = req.body.password;
 
-    //ID HIVE TODO
+  create:function(req,res){
+    const hiveId = req.body.hiveId;
+    const weight = req.body.weight;
+    const timeWeight = req.body.timeWeight; //todo api kljue za tezo
 
-    const hiveWeight = new HiveWeightModel(
-      null,
-      weight,
-      timeWeight,
-      hiveWeightId
-    );
-    hiveWeight
-      .insert()
-      .then((hiveWeight) => {
-        return res.status(200).json(hiveWeight);
-      })
-      .catch((err) => {
+    const hiveWeight = new HiveWeightModel(null,weight,timeWeight,hiveId);
+    hiveWeight.insert()
+    .then(hiveWeight => {return res.status(200).json(hiveWeight)})
+    .catch(err => {
         console.log(err);
         res.status(500).send("Napaka pri ustvarjanju hiveWeight");
       });
