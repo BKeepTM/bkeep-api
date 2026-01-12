@@ -66,4 +66,17 @@ export default class HiveWeightModel {
         return connection.execute('DELETE FROM hive_weight WHERE weight = ? AND time_weight = ? AND id_hive = ?', 
             [this.weight, this.time_weight, this.id_hive]);
     }
+
+    static async getAllByDate(date) {
+        try {
+            const [results] = await connection.execute(
+                `SELECT * FROM hive_weight WHERE DATE(time_weight) = ?`,
+                [date] // npr. '2025-09-30'
+            );
+            return results;
+        } catch (err) {
+            console.error('Error executing query:', err);
+            throw err;
+        }
+    }
 };
