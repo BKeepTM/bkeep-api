@@ -131,7 +131,7 @@ createAdmin: async function (req, res) {
   },
 
   remove:function(req,res){
-    const hiveId = req.params.id ?? req.body.id;  
+    const hiveId = req.params.id ?? req.body.id ?? req.query.id;  
     const userId = req.auth.data.id
 
     console.log("hiveid", hiveId)
