@@ -27,7 +27,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: bkeepapi/bkeep-api:$VER
+          tags: bkeepapi/bkeep-api:${{vars.VER}}
           
       - name: deploying
         uses: appleboy/ssh-action@v0.1.8
