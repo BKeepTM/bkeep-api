@@ -14,11 +14,13 @@ import hiveWeightRouter from './routes/hiveWeight.js';
 import notificationRouter from './routes/notification.js';
 import whetherRouter from './routes/weather.js';
 import blockchainRouter from './routes/blockchain.js';
+import deviceDataRouter from './routes/deviceData.js'
 
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import {expressjwt} from "express-jwt";
 import cors from "cors";
+import { appendFileSync } from 'fs';
 
 
 
@@ -58,6 +60,8 @@ app.use('/', hiveWeightRouter);
 app.use('/', notificationRouter)
 app.use('/', whetherRouter)
 app.use('/', blockchainRouter)
+app.use('/', deviceDataRouter)
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));

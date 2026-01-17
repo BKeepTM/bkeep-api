@@ -1,30 +1,28 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.2.3
 -- https://www.phpmyadmin.net/
 --
--- Gostitelj: express_mysql:3306
--- Čas nastanka: 09. jan 2026 ob 14.31
--- Različica strežnika: 9.1.0
--- Različica PHP: 8.2.8
+-- Host: express_mysql:3306
+-- Generation Time: Jan 16, 2026 at 07:27 PM
+-- Server version: 9.1.0
+-- PHP Version: 8.3.26
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
-
-
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Zbirka podatkov: `db_bkeep`
+-- Database: `db_bkeep`
 --
 
 -- --------------------------------------------------------
 
 --
--- Struktura tabele `blockchain`
+-- Table structure for table `blockchain`
 --
 
 CREATE TABLE `blockchain` (
@@ -40,7 +38,37 @@ CREATE TABLE `blockchain` (
 -- --------------------------------------------------------
 
 --
--- Struktura tabele `hive`
+-- Table structure for table `device_data`
+--
+
+CREATE TABLE `device_data` (
+  `id` int NOT NULL,
+  `humidity` float DEFAULT NULL,
+  `brightness` float DEFAULT NULL,
+  `temperature` float DEFAULT NULL,
+  `longitude` float NOT NULL,
+  `latitude` float NOT NULL,
+  `time` datetime NOT NULL,
+  `user_id` int NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `esp_secret`
+--
+
+CREATE TABLE `esp_secret` (
+  `id` int NOT NULL,
+  `secret` char(32) DEFAULT NULL,
+  `id_hive` int NOT NULL,
+  `date_registered` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `hive`
 --
 
 CREATE TABLE `hive` (
@@ -53,20 +81,10 @@ CREATE TABLE `hive` (
   `id_user` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
---
--- Odloži podatke za tabelo `hive`
---
-
-INSERT INTO `hive` (`id`, `name`, `location`, `type`, `status`, `id_location`, `id_user`) VALUES
-(1, 'Mariborski roj 1', 'Streha - MB', 'lr', 'online', 1, 8),
-(2, 'Ljubljanska postaja 3', 'Gozd - LJ', 'az', 'online', 2, 8),
-(3, 'Rezerva DB', 'Klet', 'db', 'offline', 1, 8),
-(4, 'Razvanjski roj 1', 'Razvanje', 'az', 'offline', 3, 8);
-
 -- --------------------------------------------------------
 
 --
--- Struktura tabele `hive_weight`
+-- Table structure for table `hive_weight`
 --
 
 CREATE TABLE `hive_weight` (
@@ -77,28 +95,71 @@ CREATE TABLE `hive_weight` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
--- Odloži podatke za tabelo `hive_weight`
+-- Triggers `hive_weight`
 --
+DELIMITER $$
+CREATE TRIGGER `after_hive_weight_insert_check_loss` AFTER INSERT ON `hive_weight` FOR EACH ROW BEGIN
+    DECLARE consecutive_days_threshold INT DEFAULT 3;
 
-INSERT INTO `hive_weight` (`id`, `weight`, `time_weight`, `id_hive`) VALUES
-(1, 35.5, '2025-09-30 15:00:00', 1),
-(2, 35.8, '2025-09-30 16:00:00', 1),
-(3, 41.2, '2025-09-30 15:30:00', 2),
-(4, 36, '2025-10-01 10:00:00', 1),
-(5, 36.5, '2025-10-02 10:00:00', 1),
-(6, 37.1, '2025-10-03 10:00:00', 1),
-(7, 37.5, '2025-10-04 10:00:00', 1),
-(8, 38, '2025-10-05 10:00:00', 1),
-(9, 41, '2025-10-01 10:00:00', 2),
-(10, 40.5, '2025-10-02 10:00:00', 2),
-(11, 40.1, '2025-10-03 10:00:00', 2),
-(12, 39.8, '2025-10-04 10:00:00', 2),
-(13, 39.5, '2025-10-05 10:00:00', 2);
+    DECLARE weight_today FLOAT;
+    DECLARE weight_yesterday FLOAT;
+    DECLARE weight_day_before FLOAT;
+    DECLARE hive_owner_id INT;
+    DECLARE hive_name_var VARCHAR(45);
+    DECLARE summary_text VARCHAR(255);
+    DECLARE href_link VARCHAR(255);
+
+    SET weight_today = NEW.weight;
+
+    SELECT MAX(weight) INTO weight_yesterday
+    FROM hive_weight
+    WHERE id_hive = NEW.id_hive
+      AND DATE(time_weight) = DATE_SUB(DATE(NEW.time_weight), INTERVAL 1 DAY);
+
+    SELECT MAX(weight) INTO weight_day_before
+    FROM hive_weight
+    WHERE id_hive = NEW.id_hive
+      AND DATE(time_weight) = DATE_SUB(DATE(NEW.time_weight), INTERVAL 2 DAY);
+
+    IF weight_yesterday IS NOT NULL AND
+       weight_day_before IS NOT NULL AND
+       weight_today < weight_yesterday AND
+       weight_yesterday < weight_day_before
+    THEN
+        SELECT name, id_user INTO hive_name_var, hive_owner_id
+        FROM hive
+        WHERE id = NEW.id_hive;
+
+        SET summary_text = CONCAT('Stalna zguba teže na panju ', hive_name_var, '');
+        SET href_link = CONCAT('/hives/', NEW.id_hive);
+
+        IF NOT EXISTS (
+            SELECT 1 FROM notification
+            WHERE id_user = hive_owner_id
+              AND summary = summary_text
+              AND DATE(time_weight) = DATE(NEW.time_weight)
+        ) THEN
+            INSERT INTO notification (summary, description, href, severity, id_user)
+            VALUES (
+                summary_text,
+                CONCAT('Panj ', hive_name_var, ' je stalno zgublal težo za ', consecutive_days_threshold, ' zaporednih dni. ',
+                       'Trenutna teža: ', ROUND(weight_today, 2), ' kg. ',
+                       'Prejšne teže : ', ROUND(weight_yesterday, 2), ' kg, ', ROUND(weight_day_before, 2), ' kg. ',
+                       'To je morda posledica roja al slabe paše'),
+                href_link,
+                3,
+                hive_owner_id
+            );
+        END IF;
+    END IF;
+END
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
 --
--- Struktura tabele `location`
+-- Table structure for table `location`
 --
 
 CREATE TABLE `location` (
@@ -107,21 +168,10 @@ CREATE TABLE `location` (
   `latitude` float NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
---
--- Odloži podatke za tabelo `location`
---
-
-INSERT INTO `location` (`id`, `longitude`, `latitude`) VALUES
-(1, 15.6459, 46.5511),
-(2, 14.5058, 46.0569),
-(3, 15.5691, 46.5269),
-(4, 15.6487, 46.4853),
-(5, 15.668, 46.5118);
-
 -- --------------------------------------------------------
 
 --
--- Struktura tabele `notes`
+-- Table structure for table `notes`
 --
 
 CREATE TABLE `notes` (
@@ -131,18 +181,10 @@ CREATE TABLE `notes` (
   `id_hive` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
---
--- Odloži podatke za tabelo `notes`
---
-
-INSERT INTO `notes` (`id`, `content`, `time`, `id_hive`) VALUES
-(1, 'Opazili smo veliko cvetnega prahu. Stanje matice dobro.', '2025-09-29 10:30:00', 1),
-(2, 'Veliko dezja.. morda slabo za med!', '2025-09-30 16:26:57', 2);
-
 -- --------------------------------------------------------
 
 --
--- Struktura tabele `notification`
+-- Table structure for table `notification`
 --
 
 CREATE TABLE `notification` (
@@ -154,17 +196,10 @@ CREATE TABLE `notification` (
   `id_user` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
---
--- Odloži podatke za tabelo `notification`
---
-
-INSERT INTO `notification` (`id`, `summary`, `description`, `href`, `severity`, `id_user`) VALUES
-(7, 'Panj 1: Opozorilo o teži', 'Panj Mariborski roj 1 je v zadnji uri pridobil nenavadno veliko teže.', '/hive/1', 3, 5);
-
 -- --------------------------------------------------------
 
 --
--- Struktura tabele `user`
+-- Table structure for table `user`
 --
 
 CREATE TABLE `user` (
@@ -175,52 +210,135 @@ CREATE TABLE `user` (
   `settings` json DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
---
--- Odloži podatke za tabelo `user`
---
-
-INSERT INTO `user` (`id`, `username`, `password`, `mail`, `settings`) VALUES
-(5, 'jernej', '$2b$10$SNAm2A4HtC3tm2ZKqp/Q9e/CQNWq8NnvLjp9FeCn3EsYPzpLyZNP', 'jernej.lobnik@gmail.com', '{}'),
-(6, 'test', '$2b$10$ebdz5TV1SErX7N23iuvze.1AjliAFyCh5S3HhHXXrkhCAQK9yo/K2', 'test', '{}'),
-(7, 'David', '$2b$10$GEwpKhdzsPVXVHjxI0TjO.gvKtmOJwhgPplR4a7C3cW5ipn12ZqMa', 'david.repolusk@gmail.com', '{}'),
-(8, 'android', '$2b$10$zlYGfE.REhW59JF.vlkx3ui00A0.baQTMZIamskPpAeRTxxgO4m7i', 'andorid.android@gmail.com', '{}');
-
 -- --------------------------------------------------------
 
 --
--- Struktura tabele `weather`
+-- Table structure for table `weather`
 --
 
 CREATE TABLE `weather` (
   `id` int NOT NULL,
   `report_date` date NOT NULL,
-  `location` varchar(255) NOT NULL,
-  `temperature` int NOT NULL,
-  `air_pressure` int NOT NULL,
-  `humidity` int NOT NULL,
-  `wind_speed` int NOT NULL,
-  `precipitation` int NOT NULL
+  `location_x` float NOT NULL,
+  `location_y` float NOT NULL,
+  `temperature` int DEFAULT NULL,
+  `air_pressure` int DEFAULT NULL,
+  `humidity` int DEFAULT NULL,
+  `wind_speed` int DEFAULT NULL,
+  `precipitation` int DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
--- Odloži podatke za tabelo `weather`
+-- Triggers `weather`
+--
+DELIMITER $$
+CREATE TRIGGER `after_weather_insert_create_notification` AFTER INSERT ON `weather` FOR EACH ROW BEGIN
+
+    DECLARE distance_threshold INT;
+    SET distance_threshold = 20000;
+
+    IF NEW.temperature IS NOT NULL AND NEW.temperature < 10 THEN
+        INSERT INTO notification (summary, description, href, severity, id_user)
+        SELECT
+            'Low Temperature Alert' AS summary,
+            CONCAT('Napovedana temperatura ', NEW.temperature, 'Â°C blizu panja ', h.name, '. Preveri izolacija panja') AS description,
+            CONCAT('/hives/', h.id) AS href,
+            2 AS severity, 
+            h.id_user
+        FROM
+            hive h
+        JOIN
+            location l ON h.id_location = l.id
+        WHERE
+         
+            ST_Distance_Sphere(
+                POINT(NEW.location_x, NEW.location_y),
+                POINT(l.longitude, l.latitude)
+            ) <= distance_threshold;
+    END IF;
+
+    IF NEW.temperature IS NOT NULL AND NEW.temperature > 35 THEN
+        INSERT INTO notification (summary, description, href, severity, id_user)
+        SELECT
+            'Opozorilo: Visoka temperatura' AS summary,
+            CONCAT('Napoved temperature ', NEW.temperature, 'Â°C blizu panja ', h.name, '. Zagotovi dovolj vode Äebelam.') AS description,
+            CONCAT('/hives/', h.id) AS href,
+            2 AS severity, 
+            h.id_user
+        FROM
+            hive h
+        JOIN
+            location l ON h.id_location = l.id
+        WHERE
+            ST_Distance_Sphere(
+                POINT(NEW.location_x, NEW.location_y),
+                POINT(l.longitude, l.latitude)
+            ) <= distance_threshold;
+    END IF;
+
+
+    IF NEW.wind_speed IS NOT NULL AND NEW.wind_speed > 35 THEN
+        INSERT INTO notification (summary, description, href, severity, id_user)
+        SELECT
+            'Opozorilo: MoÄni veter ' AS summary,
+            CONCAT('Veter s hitrostjo', NEW.wind_speed, ' km/h je napovoden blizu panja ', h.name, '. To lahko vpliva na paÅ¡o.') AS description,
+            CONCAT('/hives/', h.id) AS href,
+            2 AS severity,
+            h.id_user
+        FROM
+            hive h
+        JOIN
+            location l ON h.id_location = l.id
+        WHERE
+            ST_Distance_Sphere(
+                POINT(NEW.location_x, NEW.location_y),
+                POINT(l.longitude, l.latitude)
+            ) <= distance_threshold;
+    END IF;
+
+    IF NEW.precipitation IS NOT NULL AND NEW.precipitation > 5 THEN
+        INSERT INTO notification (summary, description, href, severity, id_user)
+        SELECT
+            'Opozorilo: DeÅ¾' AS summary,
+            CONCAT('Veliko deÅ¾a (', NEW.precipitation, ' mm/h) je napovedano blizu panja ', h.name, '. ÄŒebela najverjetne nebodo letele :) .') AS description,
+            CONCAT('/hives/', h.id) AS href,
+            1 AS severity, 
+            h.id_user
+        FROM
+            hive h
+        JOIN
+            location l ON h.id_location = l.id
+        WHERE
+            ST_Distance_Sphere(
+                POINT(NEW.location_x, NEW.location_y),
+                POINT(l.longitude, l.latitude)
+            ) <= distance_threshold;
+    END IF;
+
+END
+$$
+DELIMITER ;
+
+--
+-- Indexes for dumped tables
 --
 
-INSERT INTO `weather` (`id`, `report_date`, `location`, `temperature`, `air_pressure`, `humidity`, `wind_speed`, `precipitation`) VALUES
-(1, '2025-09-30', 'Maribor', 18, 1015, 65, 5, 0);
+--
+-- Indexes for table `device_data`
+--
+ALTER TABLE `device_data`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_device_data_user1` (`user_id`);
 
 --
--- Indeksi zavrženih tabel
+-- Indexes for table `esp_secret`
 --
+ALTER TABLE `esp_secret`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `id_hive` (`id_hive`);
 
 --
--- Indeksi tabele `blockchain`
---
-ALTER TABLE `blockchain`
-  ADD PRIMARY KEY (`index`);
-
---
--- Indeksi tabele `hive`
+-- Indexes for table `hive`
 --
 ALTER TABLE `hive`
   ADD PRIMARY KEY (`id`),
@@ -228,115 +346,133 @@ ALTER TABLE `hive`
   ADD KEY `fk_hive_user1_idx` (`id_user`);
 
 --
--- Indeksi tabele `hive_weight`
+-- Indexes for table `hive_weight`
 --
 ALTER TABLE `hive_weight`
   ADD PRIMARY KEY (`id`),
   ADD KEY `fk_hive_weight_hive1_idx` (`id_hive`);
 
 --
--- Indeksi tabele `location`
+-- Indexes for table `location`
 --
 ALTER TABLE `location`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indeksi tabele `notes`
+-- Indexes for table `notes`
 --
 ALTER TABLE `notes`
   ADD PRIMARY KEY (`id`),
   ADD KEY `fk_notes_hive1` (`id_hive`);
 
 --
--- Indeksi tabele `notification`
+-- Indexes for table `notification`
 --
 ALTER TABLE `notification`
   ADD PRIMARY KEY (`id`),
   ADD KEY `id_user` (`id_user`);
 
 --
--- Indeksi tabele `user`
+-- Indexes for table `user`
 --
 ALTER TABLE `user`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indeksi tabele `weather`
+-- Indexes for table `weather`
 --
 ALTER TABLE `weather`
   ADD PRIMARY KEY (`id`);
 
 --
--- AUTO_INCREMENT zavrženih tabel
+-- AUTO_INCREMENT for dumped tables
 --
 
 --
--- AUTO_INCREMENT tabele `hive`
+-- AUTO_INCREMENT for table `device_data`
+--
+ALTER TABLE `device_data`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `hive`
 --
 ALTER TABLE `hive`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT tabele `hive_weight`
+-- AUTO_INCREMENT for table `hive_weight`
 --
 ALTER TABLE `hive_weight`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT tabele `location`
+-- AUTO_INCREMENT for table `location`
 --
 ALTER TABLE `location`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT tabele `notes`
+-- AUTO_INCREMENT for table `notes`
 --
 ALTER TABLE `notes`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT tabele `notification`
+-- AUTO_INCREMENT for table `notification`
 --
 ALTER TABLE `notification`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT tabele `user`
+-- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT tabele `weather`
+-- AUTO_INCREMENT for table `weather`
 --
 ALTER TABLE `weather`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
--- Omejitve tabel za povzetek stanja
+-- Constraints for dumped tables
 --
 
 --
--- Omejitve za tabelo `hive`
+-- Constraints for table `device_data`
+--
+ALTER TABLE `device_data`
+  ADD CONSTRAINT `fk_device_data_user1` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `esp_secret`
+--
+ALTER TABLE `esp_secret`
+  ADD CONSTRAINT `esp_secret_ibfk_1` FOREIGN KEY (`id_hive`) REFERENCES `hive` (`id`);
+
+--
+-- Constraints for table `hive`
 --
 ALTER TABLE `hive`
   ADD CONSTRAINT `fk_hive_location1` FOREIGN KEY (`id_location`) REFERENCES `location` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `fk_hive_user1_idx` FOREIGN KEY (`id_user`) REFERENCES `user` (`id`) ON DELETE CASCADE;
 
 --
--- Omejitve za tabelo `hive_weight`
+-- Constraints for table `hive_weight`
 --
 ALTER TABLE `hive_weight`
   ADD CONSTRAINT `fk_hive_weight_hive1` FOREIGN KEY (`id_hive`) REFERENCES `hive` (`id`) ON DELETE CASCADE;
 
 --
--- Omejitve za tabelo `notes`
+-- Constraints for table `notes`
 --
 ALTER TABLE `notes`
   ADD CONSTRAINT `fk_notes_hive1` FOREIGN KEY (`id_hive`) REFERENCES `hive` (`id`) ON DELETE CASCADE;
 
 --
--- Omejitve za tabelo `notification`
+-- Constraints for table `notification`
 --
 ALTER TABLE `notification`
   ADD CONSTRAINT `notification_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `user` (`id`);

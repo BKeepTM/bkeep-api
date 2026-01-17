@@ -1,0 +1,16 @@
+meta {
+  name: get device data
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{API_URL}}/deviceData/list
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
