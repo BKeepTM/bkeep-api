@@ -20,6 +20,7 @@ export default class deviceDataModel {
             return results;
         } catch (err) {
             console.error('Error executing query:', err);
+            
             throw err;
         }
     }
