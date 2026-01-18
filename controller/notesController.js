@@ -106,7 +106,7 @@ const NotesController = {
   },
 
   async remove(req, res) {
-    const userId = req.auth.data.id ?? req.body.id ?? req.query.id; // TOKEN -> JWT
+    const userId = req.auth.data.id ?? req.query.id; // TOKEN -> JWT
     //const hiveId = req.params.id ?? 
     const noteId = req.body.id; // 
 
