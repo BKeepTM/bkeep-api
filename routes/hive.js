@@ -13,6 +13,7 @@ router.get('/hive/:id', HiveController.show);
 router.post('/hive', HiveController.create);
 router.post('/hive/admin', HiveController.createAdmin);
 router.post('/hive/update', HiveController.update);
+router.post('/hive/update_status', HiveController.updateStatus);
 router.post('/hive/remove', HiveController.remove);
 router.post('/hive/remove/admin', HiveController.removeAdmin);
 

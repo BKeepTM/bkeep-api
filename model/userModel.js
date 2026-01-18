@@ -26,6 +26,7 @@ export default class UserModel {
             const [results, fields] = await connection.execute('SELECT * FROM user WHERE username = ?', [username]);
             return results;
         } catch (err) {
+            connection.connect
             console.error('Error executing query:', err);
             throw err;
         }

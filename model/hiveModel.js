@@ -48,7 +48,12 @@ export default class HiveModel {
             [this.name, this.location, this.type, this.status, this.id_location,  this.id_user]
         );
     }
-
+    updateStatus() {
+        return connection.execute(
+            'UPDATE hive SET status = ? WHERE id = ?',
+            [this.status, this.id]
+        );
+    }
     update() {
         return connection.execute(
             'UPDATE hive SET name = ?, location = ?, type = ?, status = ?, id_location = ?, id_user = ? WHERE id = ?',
