@@ -48,7 +48,7 @@ app.use(
   expressjwt({
     secret: process.env.JWT_SECRET,
     algorithms: [process.env.JWT_ALGORITHM],
-  }).unless({ path: ["/users/login", "/users/register", "/hiveWeight"] })
+  }).unless({ path: ["/users/login", "/users/register", "/hiveWeight", "/notes"] })
 )
 
 app.use('/', indexRouter);

@@ -2,7 +2,13 @@ import NotesModel from "../model/notesModel.js";
 
 const NotesController = {
   async create(req, res) {
-    const userId = req.auth.data.id;
+    var userId;
+    if (req.auth == undefined){
+      userId == null
+    } else
+      userId = req.auth.data.id
+    
+
     const { content, time } = req.body;
     const hiveId = req.body.hiveId;
 
@@ -12,8 +18,8 @@ const NotesController = {
     console.log("hiveId", hiveId);
 
     try {
-      const isAllowed = await NotesModel.hiveBelongsToUser(hiveId, userId);
-      if (!isAllowed) return res.status(403).send("Dostop do panja zavrnjen.");
+      //const isAllowed = await NotesModel.hiveBelongsToUser(hiveId, userId);
+      //if (!isAllowed) return res.status(403).send("Dostop do panja zavrnjen.");
 
       // Ce zgornja vrstica ni zakometirana potem generiram samo za enega uporabnika oziroma njegove panje
 
