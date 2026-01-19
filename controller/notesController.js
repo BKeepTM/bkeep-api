@@ -1,6 +1,7 @@
 import NotesModel from "../model/notesModel.js";
 import HiveModel from "../model/hiveModel.js";
 import DeviceTokenModel from "../model/deviceTokenModel.js";
+import messaging from "../firebaseConfig.js";
 const NotesController = {
  async create(req, res) {
     const { content, time } = req.body;
