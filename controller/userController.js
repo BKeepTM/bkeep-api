@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
 import hiveController from './hiveController.js'
+import DeviceTokenModel from '../model/deviceTokenModel.js'
 dotenv.config();
 
 export default { // WIP
