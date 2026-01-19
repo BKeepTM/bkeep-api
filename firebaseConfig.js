@@ -7,4 +7,4 @@ admin.initializeApp({
 
 const messaging = admin.messaging();
 
-module.exports = messaging; 
+export default messaging; 
