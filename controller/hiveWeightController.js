@@ -1,4 +1,5 @@
 import HiveWeightModel from "../model/hiveWeightModel.js";
+import EspSecretModel from "../model/espSecretModel.js";
 
 const HiveWeightController = {
 
@@ -6,7 +7,12 @@ const HiveWeightController = {
     const hiveId = req.body.hiveId;
     const weight = req.body.weight;
     const timeWeight = req.body.timeWeight; //todo api kljue za tezo
-
+    // const apiKey = req.body.key;
+    // if (weight === null  || apiKey == undefined){ // uporabnik ni poslal username/password
+    //      return res.status(400).json({error:'weight or api key missing'})
+    // }
+    //  if (timeWeight == null)
+    //     timeWeight = Date.now();
     const hiveWeight = new HiveWeightModel(null,weight,timeWeight,hiveId);
     hiveWeight.insert()
     .then(hiveWeight => {return res.status(200).json(hiveWeight)})

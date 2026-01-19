@@ -163,5 +163,19 @@ export default { // WIP
                 console.error(err);
                 return res.status(500).send("Napaka pri brisanju user");
             });
+    },
+    registerFcmToken(req, res) {
+    const userId = req.auth.data.id; // Assuming you have auth middleware
+    const { token } = req.body;
+
+    if (!token) return res.status(400).send("Token required");
+
+    try {
+        DeviceTokenModel.saveToken(userId, token);
+        res.status(200).send("Token registered");
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Error saving token");
     }
+  }
 }

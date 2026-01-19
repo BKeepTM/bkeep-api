@@ -19,6 +19,15 @@ export default class EspSecretModel {
         );
         return results;
     }
+    static async getBySecret(espSecret) {
+        const [results] = await connection.execute(
+            `SELECT * 
+             FROM esp_secret 
+             WHERE secret = ?`,
+            [espSecret]
+        );
+        return results;
+    }
     static async getByHiveId(hiveId) {
         const [results] = await connection.execute(
             `SELECT * 

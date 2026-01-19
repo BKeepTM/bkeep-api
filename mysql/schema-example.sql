@@ -3,13 +3,15 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: express_mysql:3306
--- Generation Time: Jan 16, 2026 at 07:27 PM
+-- Generation Time: Jan 19, 2026 at 06:10 PM
 -- Server version: 9.1.0
 -- PHP Version: 8.3.26
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
+
+
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
@@ -52,6 +54,13 @@ CREATE TABLE `device_data` (
   `user_id` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Dumping data for table `device_data`
+--
+
+INSERT INTO `device_data` (`id`, `humidity`, `brightness`, `temperature`, `longitude`, `latitude`, `time`, `user_id`) VALUES
+(1, 5, 50, 30, 15.6893, 46.5502, '2026-01-16 19:09:55', 6);
+
 -- --------------------------------------------------------
 
 --
@@ -80,6 +89,13 @@ CREATE TABLE `hive` (
   `id_location` int NOT NULL,
   `id_user` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `hive`
+--
+
+INSERT INTO `hive` (`id`, `name`, `location`, `type`, `status`, `id_location`, `id_user`) VALUES
+(1, '123', '123', 'lr', 'offline', 1, 6);
 
 -- --------------------------------------------------------
 
@@ -168,6 +184,13 @@ CREATE TABLE `location` (
   `latitude` float NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Dumping data for table `location`
+--
+
+INSERT INTO `location` (`id`, `longitude`, `latitude`) VALUES
+(1, 12, 12);
+
 -- --------------------------------------------------------
 
 --
@@ -178,7 +201,7 @@ CREATE TABLE `notes` (
   `id` int NOT NULL,
   `content` varchar(500) DEFAULT NULL,
   `time` datetime DEFAULT NULL,
-  `id_hive` int NOT NULL
+  `id_hive` int DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
@@ -208,6 +231,26 @@ CREATE TABLE `user` (
   `password` varchar(100) NOT NULL,
   `mail` varchar(45) DEFAULT NULL,
   `settings` json DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `user`
+--
+
+INSERT INTO `user` (`id`, `username`, `password`, `mail`, `settings`) VALUES
+(6, 'nejc1', '$2b$10$4gT0K2n0M5eqrSg13t/TG.LzN9Bz4pGTu8O08/hBwZ5V4Pf5b55ee', 'nejc@nejc.si', '{}');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_device_token`
+--
+
+CREATE TABLE `user_device_token` (
+  `id` int NOT NULL,
+  `user_id` int NOT NULL,
+  `token` varchar(255) NOT NULL,
+  `last_updated` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
@@ -379,6 +422,13 @@ ALTER TABLE `user`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `user_device_token`
+--
+ALTER TABLE `user_device_token`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_user_token` (`user_id`,`token`);
+
+--
 -- Indexes for table `weather`
 --
 ALTER TABLE `weather`
@@ -392,13 +442,13 @@ ALTER TABLE `weather`
 -- AUTO_INCREMENT for table `device_data`
 --
 ALTER TABLE `device_data`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `hive`
 --
 ALTER TABLE `hive`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `hive_weight`
@@ -410,24 +460,30 @@ ALTER TABLE `hive_weight`
 -- AUTO_INCREMENT for table `location`
 --
 ALTER TABLE `location`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `notes`
 --
 ALTER TABLE `notes`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `notification`
 --
 ALTER TABLE `notification`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT for table `user_device_token`
+--
+ALTER TABLE `user_device_token`
   MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
@@ -476,6 +532,12 @@ ALTER TABLE `notes`
 --
 ALTER TABLE `notification`
   ADD CONSTRAINT `notification_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `user` (`id`);
+
+--
+-- Constraints for table `user_device_token`
+--
+ALTER TABLE `user_device_token`
+  ADD CONSTRAINT `fk_token_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
