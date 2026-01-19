@@ -1,5 +1,5 @@
-const admin = require('firebase-admin');
-const serviceAccount = require('./fkey.json');
+import admin from 'firebase-admin';
+import serviceAccount from './fkey.json' with { type: 'json' };
 
 admin.initializeApp({
  credential: admin.credential.cert(serviceAccount),
@@ -7,4 +7,4 @@ admin.initializeApp({
 
 const messaging = admin.messaging();
 
-export default messaging; 
+export default messaging;
