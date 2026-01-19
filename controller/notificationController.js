@@ -9,7 +9,7 @@ const NotificationController = {
     const userId = req.auth.data.id
     const { summary, description, href, severity } = req.body;
 
-    console.log("User", id_user);
+    console.log("User", userId);
     console.log("summary", summary);
     console.log("description", description);
     console.log("href", href);

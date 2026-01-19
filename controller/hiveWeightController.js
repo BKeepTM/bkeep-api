@@ -1,6 +1,18 @@
 import HiveWeightModel from "../model/hiveWeightModel.js";
 import EspSecretModel from "../model/espSecretModel.js";
 
+const processWeightData = async (data) => { // helper... od ai
+    const hiveId = data.hiveId;
+    const weight = data.weight;
+    let timeWeight = data.timeWeight; 
+    if (!timeWeight) {
+        timeWeight = new Date(); 
+    }
+    const hiveWeight = new HiveWeightModel(null, weight, timeWeight, hiveId);
+    
+    return hiveWeight.insert();
+};
+
 const HiveWeightController = {
 
   create:function(req,res){
@@ -21,7 +33,26 @@ const HiveWeightController = {
         res.status(500).send("Napaka pri ustvarjanju hiveWeight");
       });
   },
+   // This is called by your server.js when a message arrives
+   handleMqttMessage: async function(topic, messageBuffer) {
+    try {
+      // Convert buffer to string
+      const messageString = messageBuffer.toString();
+      console.log(`MQTT Received [${topic}]:`, messageString);
+      
+      // Parse JSON from device
+      const data = JSON.parse(messageString);
 
+      // REUSE the same logic as HTTP
+      const result = await processWeightData(data);
+      
+      console.log("MQTT Data saved successfully via HiveWeightController");
+    } catch (err) {
+      // We cannot send an HTTP 'res' back to MQTT, so we log the error
+      console.error("MQTT Processing Error:", err.message);
+    }
+  },
+  
   createAdmin: function (req, res) {
     const hiveId = req.body.hiveId;
     const weight = req.body.weight;

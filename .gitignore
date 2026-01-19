@@ -14,7 +14,6 @@ coverage
 mysql/schema.sql
 # Benchmarking
 benchmarks/graphs
-fkey.json
 # key
 # ignore additional files using core.excludesFile
 # https://git-scm.com/docs/gitignore

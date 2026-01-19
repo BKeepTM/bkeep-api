@@ -41,7 +41,7 @@ const NotesController = {
 
             const message = {
                 notification: {
-                    title: 'Hive Alert', 
+                    title: 'Hive message', 
                     body: `${content}\nTime: ${time}`
                 },
                 data: {

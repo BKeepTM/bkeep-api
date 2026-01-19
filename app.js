@@ -4,6 +4,8 @@ import path from 'path';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import mysql from 'mysql2';
+import mqtt from 'mqtt';
+import { initMqtt } from './util/mqttHandler.js'; 
 
 import indexRouter from './routes/index.js';
 import usersRouter from './routes/users.js';
@@ -21,6 +23,7 @@ import { dirname } from 'path';
 import {expressjwt} from "express-jwt";
 import cors from "cors";
 import { appendFileSync } from 'fs';
+import { utils } from 'mocha';
 
 
 
@@ -66,6 +69,10 @@ app.use('/', deviceDataRouter)
 app.use(function(req, res, next) {
   next(createError(404));
 });
+
+//mqtt
+initMqtt();
+
 
 // error handler
 app.use(function(err, req, res, next) {
