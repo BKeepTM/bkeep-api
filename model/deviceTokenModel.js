@@ -4,7 +4,7 @@ export default class DeviceTokenModel {
     
     static async saveToken(userId, token) {
         return connection.execute(
-            "INSERT INTO user_device_token (user_id, token, last_updated) VALUES (?, ?, NOW()) ON DUPLICATE KEY UPDATE last_updated = NOW()",
+            "INSERT INTO IGNORE user_device_token (user_id, token, last_updated) VALUES (?, ?, NOW())",
             [userId, token]
         );
     }
