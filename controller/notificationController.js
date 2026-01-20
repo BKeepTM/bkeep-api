@@ -6,15 +6,16 @@ import NotificationModel from "../model/notificationModel.js";
     //     this.user_id = user_id;
 const NotificationController = {
   async create(req, res) {
-    const { summary, description, href, severity, id_user } = req.body;
+    const userId = req.auth.data.id
+    const { summary, description, href, severity } = req.body;
 
-    console.log("User", id_user);
+    console.log("User", userId);
     console.log("summary", summary);
     console.log("description", description);
     console.log("href", href);
 
     try {
-      const note = new NotificationModel(null, summary, description, href,severity ,id_user);
+      const note = new NotificationModel(null, summary, description, href,severity ,userId);
       const [result] = await note.insert();
       return res.status(201).json({ id: result.insertId });
     } catch (err) {

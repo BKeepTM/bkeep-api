@@ -1,0 +1,20 @@
+meta {
+  name: post note
+  type: http
+  seq: 13
+}
+
+post {
+  url: {{API_URL}}/notes
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {"hiveId":1,"time":"2026-01-19 11:23:45","content":"EXTREME EVENT: Hive weight measured 0.00 kg"}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
