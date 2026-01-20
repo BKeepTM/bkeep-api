@@ -39,21 +39,20 @@ export default class LocationModel {
         }
     }
 
-     async insert() {
-    const [result] = await connection.execute(
-      'INSERT INTO location (longitude, latitude) VALUES (?, ?)',
-      [this.longitude, this.latitude]
-    );
+    async insert() {
+        const [result] = await connection.execute(
+            `INSERT INTO location (longitude, latitude)
+     VALUES (?, ?)
+     ON DUPLICATE KEY UPDATE id = LAST_INSERT_ID(id)`,
+            [this.longitude, this.latitude]
+        );
 
-    console.log(result)
-    this.id = result.insertId;
-
-    return {
-      id: this.id,
-      longitude: this.longitude,
-      latitude: this.latitude
-    };
-  }
+        return {
+            id: result.insertId,
+            longitude: this.longitude,
+            latitude: this.latitude
+        };
+    }
 
     update() {
         return connection.execute(

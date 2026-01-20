@@ -99,7 +99,7 @@ const NotesController = {
   async listByUser(req, res) {
     const userId = req.auth.data.id;
     try {
-      const notes = await NotesModel.getAllByUser(userId);
+      const notes = await NotesModel.getAllByUserId(userId);
       return res.status(200).json(notes);
     } catch (err) {
       console.error(err);
