@@ -4,7 +4,7 @@ export default class DeviceTokenModel {
     
     static async saveToken(userId, token) {
         return connection.execute(
-            "INSERT INTO user_device_token (user_id, token) VALUES (?, ?)",
+            "INSERT IGNORE INTO user_device_token (user_id, token) VALUES (?, ?)",
             [userId, token]
         );
     }
