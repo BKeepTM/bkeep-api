@@ -169,7 +169,7 @@ export default { // WIP
     const userId = req.auth.data.id; // Assuming you have auth middleware
     const { token } = req.body;
 
-    if (!token) return res.status(400).send("Token required");
+    if (!token || ! userId) return res.status(400).send("Token and userId required");
 
     try {
         DeviceTokenModel.saveToken(userId, token);
