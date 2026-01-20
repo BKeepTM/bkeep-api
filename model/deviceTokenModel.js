@@ -6,7 +6,7 @@ export default class DeviceTokenModel {
     static async saveToken(userId, token) {
         // IGNORE ensures we don't crash if the token already exists for this user
         return connection.execute(
-            'INSERT IGNORE INTO user_device_token (user_id, token) VALUES (?, ?)',
+            'INSERT INTO user_device_token (user_id, token) VALUES (?, ?)',
             [userId, token]
         );
     }
