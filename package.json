@@ -22,8 +22,11 @@
     "jsonwebtoken": "^9.0.2",
     "morgan": "~1.9.1",
     "mqtt": "^5.14.1",
+    "multer": "^2.0.2",
     "mysql": "^2.18.1",
-    "mysql2": "^3.14.0"
+    "mysql2": "^3.14.0",
+    "sharp": "^0.34.5",
+    "url": "^0.11.4"
   },
   "devDependencies": {
     "mocha": "^11.2.2"

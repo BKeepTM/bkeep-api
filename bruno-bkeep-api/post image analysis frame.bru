@@ -1,0 +1,15 @@
+meta {
+  name: post image analysis frame
+  type: http
+  seq: 14
+}
+
+post {
+  url: {{API_URL}}/analysis/frame
+  body: multipartForm
+  auth: inherit
+}
+
+body:multipart-form {
+  image: @file(/home/nejcs/bkeep-api/cebele.png)
+}
