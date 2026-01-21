@@ -13,5 +13,6 @@ router.post('/users/update', UserController.update);
 router.post('/users/remove', UserController.remove);
 router.post('/users/login',UserController.login);
 router.post('/users/register',UserController.register);
+router.post('/users/fcm',UserController.registerFcmToken);
 
 export default router;
