@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y \
     libgl1 \
     libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
-RUN pip3 install ultralytics roboflow supervision --break-system-packages
+RUN pip3 install --break-system-packages --extra-index-url https://download.pytorch.org/whl/cpu torch torchvision numpy ultralytics 
 WORKDIR /usr/src/app
 COPY ./ ./
 RUN npm install
