@@ -11,6 +11,7 @@ npm-shrinkwrap.json
 coverage
 # configuration
 .env
+public
 mysql/schema.sql
 # Benchmarking
 benchmarks/graphs
