@@ -1,0 +1,23 @@
+meta {
+  name: update status hive
+  type: http
+  seq: 11
+}
+
+post {
+  url: {{API_URL}}/hive/update_status
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "status":"offline",
+    "id":"1"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

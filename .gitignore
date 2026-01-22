@@ -11,9 +11,10 @@ npm-shrinkwrap.json
 coverage
 # configuration
 .env
+public
 mysql/schema.sql
 # Benchmarking
 benchmarks/graphs
-
+# key
 # ignore additional files using core.excludesFile
 # https://git-scm.com/docs/gitignore

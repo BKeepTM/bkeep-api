@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
 import hiveController from './hiveController.js'
+import DeviceTokenModel from '../model/deviceTokenModel.js'
 dotenv.config();
 
 export default { // WIP
@@ -163,5 +164,19 @@ export default { // WIP
                 console.error(err);
                 return res.status(500).send("Napaka pri brisanju user");
             });
+    },
+    registerFcmToken(req, res) {
+    const userId = req.auth.data.id; // Assuming you have auth middleware
+    const { token } = req.body;
+
+    if (!token || ! userId) return res.status(400).send("Token and userId required");
+
+    try {
+        DeviceTokenModel.saveToken(userId, token);
+        res.status(200).send("Token registered");
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Error saving token");
     }
+  }
 }

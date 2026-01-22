@@ -1,10 +1,8 @@
 name: Docker Image build
 
 on:
-  push:
-    branches: [ "main" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "dev" ]
 
 jobs:
 
@@ -27,7 +25,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: bkeepapi/bkeep-api:$VER
+          tags: bkeepapi/bkeep-api:${{vars.VER}}
           
       - name: deploying
         uses: appleboy/ssh-action@v0.1.8
@@ -37,7 +35,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            docker image pull bkeepapi/bkeep-api:$VER
+            docker image pull bkeepapi/bkeep-api:${{vars.VER}}
             cd ~/bkeep-api
             git pull
             docker-compose -f compose-prod.yaml down

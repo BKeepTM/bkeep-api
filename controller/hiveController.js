@@ -111,7 +111,19 @@ createAdmin: async function (req, res) {
       res.status(500).send("Napaka pri show hive");
   });
   },
+  updateStatus: function(req,res){
+    const hiveId = req.params.id || req.body.id;
+    const status = req.body.status;
+    const userId = req.auth.data.id;
 
+    const hive = new HiveModel(hiveId,null,null,null,status,null,userId);
+    hive.updateStatus()
+    .then(hive => {return res.status(200).json(hive)})
+    .catch(err => {
+      console.error(err);
+      return res.status(500).send("Napaka pri posodabljanju statusa hive");
+    });
+  },
   update: function(req,res){
     const hiveId = req.params.id || req.body.id;
     const name = req.body.name ?? null;
@@ -131,7 +143,7 @@ createAdmin: async function (req, res) {
   },
 
   remove:function(req,res){
-    const hiveId = req.params.id ?? req.body.id;  
+    const hiveId = req.params.id ?? req.body.id ?? req.query.id;  
     const userId = req.auth.data.id
 
     console.log("hiveid", hiveId)

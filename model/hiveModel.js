@@ -41,14 +41,27 @@ export default class HiveModel {
             throw err;
         }
     }
-
+    static async getByIdNoUser(id) {
+        try {
+            const [results, fields] = await connection.execute('SELECT * FROM hive WHERE id = ?', [id]);
+            return results;
+        } catch (err) {
+            console.error('Error executing query:', err);
+            throw err;
+        }
+    }
     insert() {
         return connection.execute(
             'INSERT INTO hive (name, location, type, status, id_location, id_user) VALUES (?, ?, ?, ?, ?,  ?)',
             [this.name, this.location, this.type, this.status, this.id_location,  this.id_user]
         );
     }
-
+    updateStatus() {
+        return connection.execute(
+            'UPDATE hive SET status = ? WHERE id = ?',
+            [this.status, this.id]
+        );
+    }
     update() {
         return connection.execute(
             'UPDATE hive SET name = ?, location = ?, type = ?, status = ?, id_location = ?, id_user = ? WHERE id = ?',

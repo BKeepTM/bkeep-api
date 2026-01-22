@@ -1,0 +1,20 @@
+meta {
+  name: post hive weight
+  type: http
+  seq: 12
+}
+
+post {
+  url: {{API_URL}}/hiveWeight
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {"weight":"0.12","hiveId":"4","timeWeight":"2026-01-18 20:50:39"}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

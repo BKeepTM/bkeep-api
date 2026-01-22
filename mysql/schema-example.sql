@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.2.3
 -- https://www.phpmyadmin.net/
 --
--- Gostitelj: express_mysql:3306
--- Čas nastanka: 16. maj 2025 ob 16.12
--- Različica strežnika: 9.1.0
--- Različica PHP: 8.2.8
+-- Host: express_mysql:3306
+-- Generation Time: Jan 19, 2026 at 06:10 PM
+-- Server version: 9.1.0
+-- PHP Version: 8.3.26
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,19 +18,61 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Zbirka podatkov: `db_bkeep`
+-- Database: `db_bkeep`
 --
 
 -- --------------------------------------------------------
 
 --
--- Struktura tabele `hive`
+-- Table structure for table `blockchain`
 --
-CREATE USER 'bkeep'@'%' IDENTIFIED BY 'bkeep';
-GRANT ALL PRIVILEGES ON `db_bkeep`.* TO 'bkeep'@'%';
+
+CREATE TABLE `blockchain` (
+  `index` int NOT NULL,
+  `previousHash` varchar(500) DEFAULT NULL,
+  `timestamp` int NOT NULL,
+  `data` varchar(500) NOT NULL,
+  `difficulty` int NOT NULL,
+  `token` int NOT NULL,
+  `hash` varchar(500) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
 --
--- Database: `db_bkeep`
+-- Table structure for table `device_data`
 --
+
+CREATE TABLE `device_data` (
+  `id` int NOT NULL,
+  `humidity` float DEFAULT NULL,
+  `brightness` float DEFAULT NULL,
+  `temperature` float DEFAULT NULL,
+  `longitude` float NOT NULL,
+  `latitude` float NOT NULL,
+  `time` datetime NOT NULL,
+  `user_id` int NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `device_data`
+--
+
+INSERT INTO `device_data` (`id`, `humidity`, `brightness`, `temperature`, `longitude`, `latitude`, `time`, `user_id`) VALUES
+(1, 5, 50, 30, 15.6893, 46.5502, '2026-01-16 19:09:55', 6);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `esp_secret`
+--
+
+CREATE TABLE `esp_secret` (
+  `id` int NOT NULL,
+  `secret` char(32) DEFAULT NULL,
+  `id_hive` int NOT NULL,
+  `date_registered` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -47,6 +89,13 @@ CREATE TABLE `hive` (
   `id_location` int NOT NULL,
   `id_user` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `hive`
+--
+
+INSERT INTO `hive` (`id`, `name`, `location`, `type`, `status`, `id_location`, `id_user`) VALUES
+(1, '123', '123', 'lr', 'offline', 1, 6);
 
 -- --------------------------------------------------------
 
@@ -97,18 +146,19 @@ CREATE TRIGGER `after_hive_weight_insert_check_loss` AFTER INSERT ON `hive_weigh
         FROM hive
         WHERE id = NEW.id_hive;
 
-        SET summary_text = CONCAT('Stalna zguba teže na panju '', hive_name_var, ''');
+        SET summary_text = CONCAT('Stalna zguba teže na panju ', hive_name_var, '');
         SET href_link = CONCAT('/hives/', NEW.id_hive);
 
         IF NOT EXISTS (
             SELECT 1 FROM notification
             WHERE id_user = hive_owner_id
               AND summary = summary_text
+              AND DATE(time_weight) = DATE(NEW.time_weight)
         ) THEN
             INSERT INTO notification (summary, description, href, severity, id_user)
             VALUES (
                 summary_text,
-                CONCAT('Panj '', hive_name_var, '' je stalno zgublal težo za ', consecutive_days_threshold, ' zaporednih dni. ',
+                CONCAT('Panj ', hive_name_var, ' je stalno zgublal težo za ', consecutive_days_threshold, ' zaporednih dni. ',
                        'Trenutna teža: ', ROUND(weight_today, 2), ' kg. ',
                        'Prejšne teže : ', ROUND(weight_yesterday, 2), ' kg, ', ROUND(weight_day_before, 2), ' kg. ',
                        'To je morda posledica roja al slabe paše'),
@@ -134,6 +184,13 @@ CREATE TABLE `location` (
   `latitude` float NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Dumping data for table `location`
+--
+
+INSERT INTO `location` (`id`, `longitude`, `latitude`) VALUES
+(1, 12, 12);
+
 -- --------------------------------------------------------
 
 --
@@ -144,7 +201,7 @@ CREATE TABLE `notes` (
   `id` int NOT NULL,
   `content` varchar(500) DEFAULT NULL,
   `time` datetime DEFAULT NULL,
-  `id_hive` int NOT NULL
+  `id_hive` int DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
@@ -174,6 +231,26 @@ CREATE TABLE `user` (
   `password` varchar(100) NOT NULL,
   `mail` varchar(45) DEFAULT NULL,
   `settings` json DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `user`
+--
+
+INSERT INTO `user` (`id`, `username`, `password`, `mail`, `settings`) VALUES
+(6, 'nejc1', '$2b$10$4gT0K2n0M5eqrSg13t/TG.LzN9Bz4pGTu8O08/hBwZ5V4Pf5b55ee', 'nejc@nejc.si', '{}');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_device_token`
+--
+
+CREATE TABLE `user_device_token` (
+  `id` int NOT NULL,
+  `user_id` int NOT NULL,
+  `token` varchar(255) NOT NULL,
+  `last_updated` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
@@ -207,7 +284,7 @@ CREATE TRIGGER `after_weather_insert_create_notification` AFTER INSERT ON `weath
         INSERT INTO notification (summary, description, href, severity, id_user)
         SELECT
             'Low Temperature Alert' AS summary,
-            CONCAT('Napovedana temperatura ', NEW.temperature, 'Â°C blizu panja '', h.name, ''. Preveri izolacija panja') AS description,
+            CONCAT('Napovedana temperatura ', NEW.temperature, 'Â°C blizu panja ', h.name, '. Preveri izolacija panja') AS description,
             CONCAT('/hives/', h.id) AS href,
             2 AS severity, 
             h.id_user
@@ -227,7 +304,7 @@ CREATE TRIGGER `after_weather_insert_create_notification` AFTER INSERT ON `weath
         INSERT INTO notification (summary, description, href, severity, id_user)
         SELECT
             'Opozorilo: Visoka temperatura' AS summary,
-            CONCAT('Napoved temperature ', NEW.temperature, 'Â°C blizu panja '', h.name, ''. Zagotovi dovolj vode Äebelam.') AS description,
+            CONCAT('Napoved temperature ', NEW.temperature, 'Â°C blizu panja ', h.name, '. Zagotovi dovolj vode Äebelam.') AS description,
             CONCAT('/hives/', h.id) AS href,
             2 AS severity, 
             h.id_user
@@ -247,7 +324,7 @@ CREATE TRIGGER `after_weather_insert_create_notification` AFTER INSERT ON `weath
         INSERT INTO notification (summary, description, href, severity, id_user)
         SELECT
             'Opozorilo: MoÄni veter ' AS summary,
-            CONCAT('Veter s hitrostjo', NEW.wind_speed, ' km/h je napovoden blizu panja '', h.name, ''. To lahko vpliva na paÅ¡o.') AS description,
+            CONCAT('Veter s hitrostjo', NEW.wind_speed, ' km/h je napovoden blizu panja ', h.name, '. To lahko vpliva na paÅ¡o.') AS description,
             CONCAT('/hives/', h.id) AS href,
             2 AS severity,
             h.id_user
@@ -266,7 +343,7 @@ CREATE TRIGGER `after_weather_insert_create_notification` AFTER INSERT ON `weath
         INSERT INTO notification (summary, description, href, severity, id_user)
         SELECT
             'Opozorilo: DeÅ¾' AS summary,
-            CONCAT('Veliko deÅ¾a (', NEW.precipitation, ' mm/h) je napovedano blizu panja '', h.name, ''. ÄŒebela najverjetne nebodo letele :) .') AS description,
+            CONCAT('Veliko deÅ¾a (', NEW.precipitation, ' mm/h) je napovedano blizu panja ', h.name, '. ÄŒebela najverjetne nebodo letele :) .') AS description,
             CONCAT('/hives/', h.id) AS href,
             1 AS severity, 
             h.id_user
@@ -288,6 +365,20 @@ DELIMITER ;
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `device_data`
+--
+ALTER TABLE `device_data`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_device_data_user1` (`user_id`);
+
+--
+-- Indexes for table `esp_secret`
+--
+ALTER TABLE `esp_secret`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `id_hive` (`id_hive`);
 
 --
 -- Indexes for table `hive`
@@ -331,6 +422,13 @@ ALTER TABLE `user`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `user_device_token`
+--
+ALTER TABLE `user_device_token`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_user_token` (`user_id`,`token`);
+
+--
 -- Indexes for table `weather`
 --
 ALTER TABLE `weather`
@@ -341,10 +439,16 @@ ALTER TABLE `weather`
 --
 
 --
+-- AUTO_INCREMENT for table `device_data`
+--
+ALTER TABLE `device_data`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT for table `hive`
 --
 ALTER TABLE `hive`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `hive_weight`
@@ -356,13 +460,13 @@ ALTER TABLE `hive_weight`
 -- AUTO_INCREMENT for table `location`
 --
 ALTER TABLE `location`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `notes`
 --
 ALTER TABLE `notes`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `notification`
@@ -374,7 +478,13 @@ ALTER TABLE `notification`
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT for table `user_device_token`
+--
+ALTER TABLE `user_device_token`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `weather`
@@ -385,6 +495,18 @@ ALTER TABLE `weather`
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `device_data`
+--
+ALTER TABLE `device_data`
+  ADD CONSTRAINT `fk_device_data_user1` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `esp_secret`
+--
+ALTER TABLE `esp_secret`
+  ADD CONSTRAINT `esp_secret_ibfk_1` FOREIGN KEY (`id_hive`) REFERENCES `hive` (`id`);
 
 --
 -- Constraints for table `hive`
@@ -410,6 +532,12 @@ ALTER TABLE `notes`
 --
 ALTER TABLE `notification`
   ADD CONSTRAINT `notification_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `user` (`id`);
+
+--
+-- Constraints for table `user_device_token`
+--
+ALTER TABLE `user_device_token`
+  ADD CONSTRAINT `fk_token_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
